@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin — Tableau Général AllergoZyme Protect</title>
+<meta name="description" content="Tableau de bord général des données AllergoZyme Protect.">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
+<style>
+  :root {
+    --gold:#d4af37; --gold-dark:#b68f1e; --white:#ffffff;
+    --gold-light:rgba(212,175,55,0.25);
+  }
+  body {
+    margin:0; font-family: 'Poppins', sans-serif;
+    background: linear-gradient(180deg, var(--white) 0%, #fff9e7 70%, var(--white) 100%);
+    color: var(--gold-dark);
+  }
+  header {
+    background: rgba(255,255,255,0.9);
+    border-bottom: 2px solid var(--gold-light);
+    padding: 16px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    backdrop-filter: blur(8px);
+  }
+  header h1 {
+    background: linear-gradient(90deg, var(--gold-dark), var(--gold));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    font-size: 1.4rem; margin: 0;
+  }
+  .btn {
+    background: var(--gold-dark); color: #fff; border: none;
+    padding: 10px 18px; border-radius: 999px; font-weight: 700;
+    cursor: pointer; transition: all .2s;
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 0 12px var(--gold-light); }
+  main { padding: 28px; max-width: 1280px; margin: 0 auto; }
+  .stats {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; margin-bottom: 28px;
+  }
+  .card {
+    background: #fff; border: 1px solid var(--gold-light);
+    border-radius: 20px; padding: 20px; box-shadow: 0 8px 24px var(--gold-light);
+    text-align: center; transition: transform .2s;
+  }
+  .card:hover { transform: translateY(-4px); }
+  .card h2 { margin: 0; font-size: 1.1rem; opacity: .9; }
+  .card .value {
+    font-size: 2.4rem; font-weight: 800;
+    background: linear-gradient(90deg, var(--gold-dark), var(--gold));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  #map { height: 460px; border-radius: 20px; border: 1px solid var(--gold-light); margin-bottom: 28px; }
+  canvas { background: #fff; border-radius: 20px; border: 1px solid var(--gold-light); padding: 10px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Tableau de bord général — AllergoZyme Protect</h1>
+  <button class="btn" onclick="window.location='admin2.html'">Accès admin complet</button>
+</header>
+
+<main>
+  <div class="stats">
+    <div class="card">
+      <h2>Restaurants inscrits</h2>
+      <div class="value" id="countRestaurants">0</div>
+    </div>
+    <div class="card">
+      <h2>Abonnements actifs</h2>
+      <div class="value" id="countActive">0</div>
+    </div>
+    <div class="card">
+      <h2>Signatures clients</h2>
+      <div class="value" id="countSignatures">0</div>
+    </div>
+  </div>
+
+  <div id="map"></div>
+
+  <div class="stats" style="grid-template-columns:1fr 1fr;">
+    <canvas id="chartInscriptions"></canvas>
+    <canvas id="chartSignatures"></canvas>
+  </div>
+</main>
+
+<script type="module">
+  import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+  const SUPABASE_URL = "https://TON_PROJET.supabase.co";
+  const SUPABASE_ANON_KEY = "TA_CLE_PUBLIC";
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const ADMIN_EMAIL = "allergozymepro@gmail.com";
+
+  // Vérifier admin
+  const { data: sess } = await supabase.auth.getSession();
+  const email = sess?.session?.user?.email;
+  if(email !== ADMIN_EMAIL){
+    alert("Accès réservé à l’administrateur.");
+    window.location = "identification.html";
+  }
+
+  // Récupération données
+  const { data: restaurants } = await supabase.from('restaurants').select('*');
+  const { data: signatures } = await supabase.from('signatures').select('*');
+
+  // Stats
+  const totalRestos = restaurants.length;
+  const activeRestos = restaurants.filter(r => r.paiement).length;
+  const totalSignatures = signatures.length;
+  document.getElementById('countRestaurants').textContent = totalRestos;
+  document.getElementById('countActive').textContent = activeRestos;
+  document.getElementById('countSignatures').textContent = totalSignatures;
+
+  // --- Carte
+  const map = L.map('map').setView([46.5, 2.5], 5);
+  L.tileLayer('https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap France', minZoom: 3, maxZoom: 18
+  }).addTo(map);
+
+  restaurants.filter(r => r.latitude && r.longitude).forEach(r => {
+    const marker = L.circleMarker([r.latitude, r.longitude], {
+      radius: 8,
+      color: r.paiement ? '#2ecc71' : '#e74c3c',
+      fillOpacity: 0.8
+    }).addTo(map);
+    marker.bindPopup(`<b>${r.etablissement}</b><br>${r.ville || ''}<br>Abonnement : ${r.paiement?'✅ Actif':'❌ Inactif'}`);
+  });
+
+  // --- Graphique inscriptions
+  const days = {};
+  restaurants.forEach(r => {
+    const d = new Date(r.created_at).toISOString().slice(0,10);
+    days[d] = (days[d] || 0) + 1;
+  });
+  const sortedDays = Object.keys(days).sort();
+  const cumulated = sortedDays.map((d, i) =>
+    sortedDays.slice(0, i+1).reduce((sum, day) => sum + days[day], 0)
+  );
+
+  new Chart(document.getElementById('chartInscriptions'), {
+    type: 'line',
+    data: {
+      labels: sortedDays,
+      datasets: [{
+        label: 'Inscriptions restaurateurs',
+        data: cumulated,
+        borderColor: '#d4af37',
+        tension: 0.3,
+        fill: true,
+        backgroundColor: 'rgba(212,175,55,0.15)'
+      }]
+    },
+    options: { plugins: { legend: { display: false } }, scales: { x: { ticks:{color:'#b68f1e'} }, y:{ ticks:{color:'#b68f1e'} } } }
+  });
+
+  // --- Graphique signatures
+  const signDays = {};
+  signatures.forEach(s => {
+    const d = new Date(s.created_at).toISOString().slice(0,10);
+    signDays[d] = (signDays[d] || 0) + 1;
+  });
+  const sortedSignDays = Object.keys(signDays).sort();
+  new Chart(document.getElementById('chartSignatures'), {
+    type: 'bar',
+    data: {
+      labels: sortedSignDays,
+      datasets: [{
+        label: 'Signatures clients par jour',
+        data: sortedSignDays.map(d => signDays[d]),
+        backgroundColor: '#d4af37'
+      }]
+    },
+    options: { plugins: { legend: { display: false } }, scales: { x: { ticks:{color:'#b68f1e'} }, y:{ ticks:{color:'#b68f1e'} } } }
+  });
+</script>
+</body>
+</html>

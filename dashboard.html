@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AllergoZymeProtect — Tableau de bord</title>
+<meta name="description" content="Espace pro : QR codes, statut d’abonnement, configuration tables. Blanc & doré, futuriste." />
+<style>
+  :root{
+    --gold:#d4af37; --gold-deep:#b68f1e; --white:#ffffff;
+    --gold-10:rgba(212,175,55,0.10); --gold-25:rgba(212,175,55,0.25); --gold-45:rgba(212,175,55,0.45);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--white);color:var(--gold-deep);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
+  body{background:linear-gradient(180deg,var(--white) 0%,#fff9e7 60%,var(--white) 100%)}
+  header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;padding:18px 28px;border-bottom:1px solid var(--gold-25);backdrop-filter:blur(10px);background:rgba(255,255,255,.85);box-shadow:0 6px 24px var(--gold-10)}
+  .brand{display:flex;align-items:center;gap:12px}
+  .brand img{width:44px;height:44px;filter:drop-shadow(0 0 12px var(--gold-25))}
+  .brand h1{margin:0;font-size:1.1rem;letter-spacing:.14em;text-transform:uppercase;background:linear-gradient(90deg,var(--gold-deep),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .top-actions{display:flex;align-items:center;gap:10px}
+  .btn{border:1px solid var(--gold-deep);padding:10px 16px;border-radius:999px;background:var(--gold-deep);color:#fff;font-weight:700;text-decoration:none;cursor:pointer;transition:transform .2s, box-shadow .2s}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px var(--gold-25)}
+  .btn-ghost{background:#fff;color:var(--gold-deep)}
+  .status-dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--gold-deep);margin-left:6px}
+  .status-red{background:#c94141;box-shadow:0 0 12px rgba(201,65,65,.45)}
+  .status-green{background:#3aa357;box-shadow:0 0 12px rgba(58,163,87,.45)}
+  main{max-width:1160px;margin:0 auto;padding:28px 18px 80px}
+  .card{background:#fff;border:1px solid var(--gold-25);border-radius:20px;padding:24px;box-shadow:0 14px 36px var(--gold-10);margin:18px 0}
+  h2{margin:0 0 8px;text-align:center;background:linear-gradient(90deg,var(--gold-deep),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .grid{display:grid;gap:18px}
+  .grid-2{grid-template-columns:1fr 1fr}
+  @media (max-width:960px){.grid-2{grid-template-columns:1fr}}
+  .muted{opacity:.9}
+  .disabled{filter:blur(4px);pointer-events:none;position:relative}
+  .disabled::after{content:"Abonnement inactif — cliquez sur « Payer l’abonnement »";position:absolute;inset:0;display:grid;place-items:center;background:rgba(255,255,255,.88);border:2px dashed var(--gold-45);border-radius:18px;font-weight:800;color:var(--gold-deep)}
+  .row{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:center}
+  .input{padding:12px 14px;border:1px solid var(--gold-25);border-radius:10px;font-size:1rem;min-width:180px}
+  .color{width:52px;height:44px;padding:0;border-radius:10px;border:1px solid var(--gold-25)}
+  .qr-wrap{text-align:center}
+  canvas{margin:16px 0}
+  .tables{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;margin-top:16px}
+  .table-card{border:1px solid var(--gold-25);border-radius:16px;padding:16px;text-align:center;box-shadow:0 10px 24px var(--gold-10);transition:transform .2s}
+  .table-card:hover{transform:translateY(-3px)}
+  .table-shape{display:inline-flex;align-items:center;justify-content:center;width:96px;height:96px;border:2px solid var(--gold-deep);margin-bottom:10px;font-weight:800;color:var(--gold-deep)}
+  .round{border-radius:50%}
+  .table-actions{display:flex;gap:8px}
+  .mini{padding:8px 10px;border-radius:10px;font-weight:700}
+  .danger{background:#bb3a3a;border-color:#bb3a3a}
+  .soft{background:var(--gold);color:#333}
+  .note{font-size:.92rem;opacity:.9}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <img src="assets/logo.png" alt="logo" />
+    <h1>AllergoZyme Protect</h1>
+  </div>
+  <div class="top-actions">
+    <a class="btn btn-ghost" href="formation.html">Formation</a>
+    <a class="btn btn-ghost" href="archive.html">Archive</a>
+    <a id="payBtn" class="btn">Payer l’abonnement</a>
+    <div id="payCircle" class="status-dot status-red" title="Statut abonnement"></div>
+  </div>
+</header>
+
+<main>
+  <!-- Statut & rappel -->
+  <section class="card" id="statusCard">
+    <h2>Statut de l’abonnement</h2>
+    <p class="muted" id="statusText" style="text-align:center">
+      Votre abonnement n’est pas actif. Cliquez sur « Payer l’abonnement » pour activer toutes les fonctionnalités.
+    </p>
+    <div id="paypalZone" class="row" style="display:none; margin-top:8px">
+      <div id="paypal-button-container-P-9NN80675AT539804WNDZ4JNY"></div>
+    </div>
+  </section>
+
+  <div id="lockedArea" class="disabled">
+    <section class="card">
+      <h2>QR Code Général</h2>
+      <p class="note" style="text-align:center">Généré à partir de l’identifiant unique de l’établissement. Logo centré intégré. Téléchargement PNG.</p>
+      <div class="row" style="justify-content:center;margin-top:8px">
+        <label>Couleur :</label>
+        <input type="color" id="generalColor" class="color" value="#b68f1e" />
+        <button id="regenGeneral" class="btn">Régénérer</button>
+        <button id="downloadGeneral" class="btn">Télécharger</button>
+      </div>
+      <div class="qr-wrap">
+        <canvas id="generalCanvas" width="260" height="260"></canvas>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>QR Codes par Table</h2>
+      <div class="row" style="margin-bottom:10px">
+        <input id="tableName" class="input" placeholder="Nom ou numéro de table" />
+        <select id="tableShape" class="input">
+          <option value="round">Rond</option>
+          <option value="square">Carré</option>
+        </select>
+        <input id="tableColor" type="color" class="color" value="#d4af37" />
+        <button id="addTable" class="btn">Créer le QR</button>
+      </div>
+      <div id="tablesContainer" class="tables"></div>
+    </section>
+  </div>
+</main>
+
+<!-- PayPal SDK -->
+<script src="https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-9NN80675AT539804WNDZ4JNY" data-sdk-integration-source="button-factory"></script>
+
+<script type="module">
+  import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+  import QRCode from "https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js";
+
+  // ---------- CONFIG SUPABASE (à remplacer) ----------
+  const SUPABASE_URL = "https://tmrraeutjrcsozijjbzm.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtcnJhZXV0anJjc296aWpqYnptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA4MDA4NzIsImV4cCI6MjA3NjM3Njg3Mn0.015qUFsUyndsesz5RHGKWO1Ipoz7C3vcVZulACGmq0g";
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // ---------- ELEMENTS ----------
+  const payBtn = document.getElementById('payBtn');
+  const payCircle = document.getElementById('payCircle');
+  const paypalZone = document.getElementById('paypalZone');
+  const statusText = document.getElementById('statusText');
+  const lockedArea = document.getElementById('lockedArea');
+
+  const generalCanvas = document.getElementById('generalCanvas');
+  const generalColor = document.getElementById('generalColor');
+  const regenGeneral = document.getElementById('regenGeneral');
+  const downloadGeneral = document.getElementById('downloadGeneral');
+
+  const tableName = document.getElementById('tableName');
+  const tableShape = document.getElementById('tableShape');
+  const tableColor = document.getElementById('tableColor');
+  const addTable = document.getElementById('addTable');
+  const tablesContainer = document.getElementById('tablesContainer');
+
+  // ---------- ETAT ----------
+  let session = null;
+  let restaurant = null; // ligne dans table "restaurants"
+  let paymentActive = false;
+
+  // ---------- UTIL ----------
+  function setPaymentUI(active){
+    paymentActive = active;
+    if(active){
+      payCircle.classList.remove('status-red'); payCircle.classList.add('status-green');
+      lockedArea.classList.remove('disabled');
+      statusText.textContent = "Abonnement actif. Toutes les fonctionnalités sont disponibles.";
+      paypalZone.style.display = 'none';
+    }else{
+      payCircle.classList.remove('status-green'); payCircle.classList.add('status-red');
+      lockedArea.classList.add('disabled');
+      statusText.textContent = "Votre abonnement n’est pas actif. Cliquez sur « Payer l’abonnement » pour activer.";
+    }
+  }
+
+  function downloadCanvasPNG(canvas, filename){
+    const link = document.createElement('a');
+    link.download = filename;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  }
+
+  async function drawQRCodeWithLogo(canvas, text, darkColor="#000000"){
+    // génère QR sur un canvas temporaire puis dessine le logo au centre
+    const tmp = document.createElement('canvas');
+    await QRCode.toCanvas(tmp, text, { color:{dark:darkColor, light:"#ffffff"}, width:260, margin:1 });
+    const ctx = canvas.getContext('2d');
+    canvas.width = tmp.width; canvas.height = tmp.height;
+    ctx.drawImage(tmp, 0, 0);
+
+    // Logo centré
+    const logo = new Image();
+    logo.src = 'assets/logo.png';
+    await new Promise(res => { logo.onload = res; logo.onerror = res; });
+    const size = Math.floor(canvas.width * 0.22);
+    const x = (canvas.width - size)/2;
+    const y = (canvas.height - size)/2;
+    // fond blanc sous logo pour lisibilité
+    ctx.fillStyle = "#ffffff";
+    ctx.beginPath(); ctx.arc(canvas.width/2, canvas.height/2, size/2+6, 0, Math.PI*2); ctx.fill();
+    ctx.drawImage(logo, x, y, size, size);
+  }
+
+  // ---------- SESSION + RESTAURANT ----------
+  async function loadSessionAndRestaurant(){
+    const { data: sess } = await supabase.auth.getSession();
+    session = sess?.session || null;
+    if(!session){ window.location.href = "identification.html"; return; }
+
+    const email = session.user.email;
+    const { data, error } = await supabase.from('restaurants').select('*').eq('email', email).single();
+    if(error || !data){ alert("Impossible de charger le profil restaurateur."); return; }
+    restaurant = data;
+
+    // statut paiement
+    setPaymentUI(!!restaurant.paiement);
+
+    // couleur QR général si déjà enregistré
+    if(restaurant.general_qr_color){
+      generalColor.value = restaurant.general_qr_color;
+    }
+  }
+
+  // ---------- PAYPAL ----------
+  // Afficher paiement dans dashboard si on clique le bouton
+  payBtn.addEventListener('click', () => {
+    // soit on déploie le bouton PayPal sur place :
+    paypalZone.style.display = 'flex';
+    // soit tu préfères une page dédiée :
+    // window.location.href = "paiementdashboard.html";
+  });
+
+  paypal.Buttons({
+    style:{ shape:'rect', color:'gold', layout:'vertical', label:'subscribe' },
+    createSubscription:(data,actions)=>actions.subscription.create({ plan_id:'P-9NN80675AT539804WNDZ4JNY' }),
+    onApprove: async (data, actions) => {
+      // 1) Marquer payé côté base
+      await supabase.from('restaurants')
+        .update({ paiement:true })
+        .eq('id', restaurant.id);
+      // 2) Mettre à jour l'état UI
+      setPaymentUI(true);
+      // 3) (option) garder l’ID d’abonnement PayPal
+      await supabase.from('restaurants')
+        .update({ paypal_subscription_id: data.subscriptionID })
+        .eq('id', restaurant.id);
+      alert("Paiement validé. Votre abonnement est actif.");
+    }
+  }).render('#paypal-button-container-P-9NN80675AT539804WNDZ4JNY');
+
+  // ---------- QR GENERAL ----------
+  async function renderGeneralQR(){
+    const restId = restaurant?.id || "DEMO-ID";
+    const target = `https://allergozymeprotect.com/scan?id=${encodeURIComponent(restId)}`;
+    await drawQRCodeWithLogo(generalCanvas, target, generalColor.value.replace('#','%23'));
+  }
+
+  regenGeneral.addEventListener('click', async ()=>{
+    await renderGeneralQR();
+    // sauvegarder couleur choisie
+    await supabase.from('restaurants')
+      .update({ general_qr_color: generalColor.value })
+      .eq('id', restaurant.id);
+  });
+
+  downloadGeneral.addEventListener('click', ()=>{
+    downloadCanvasPNG(generalCanvas, 'QR_General_AllergoZymeProtect.png');
+  });
+
+  // ---------- TABLES ----------
+  async function loadTables(){
+    const { data, error } = await supabase.from('tables')
+      .select('*').eq('restaurant_id', restaurant.id).order('created_at', { ascending:true });
+    if(error){ console.warn(error); return; }
+    tablesContainer.innerHTML = '';
+    for(const t of data){ await renderTableCard(t); }
+  }
+
+  async function renderTableCard(t){
+    const card = document.createElement('div');
+    card.className = 'table-card'; card.dataset.tableId = t.id;
+
+    const shapeEl = document.createElement('div');
+    shapeEl.className = 'table-shape ' + (t.shape === 'round' ? 'round' : '');
+    shapeEl.style.borderColor = t.color || '#d4af37';
+    shapeEl.textContent = t.name;
+    card.appendChild(shapeEl);
+
+    const c = document.createElement('canvas');
+    card.appendChild(c);
+    const url = `https://allergozymeprotect.com/scan?table=${encodeURIComponent(t.name)}&rid=${encodeURIComponent(restaurant.id)}`;
+    await drawQRCodeWithLogo(c, url, (t.color || '#d4af37').replace('#','%23'));
+
+    const actions = document.createElement('div');
+    actions.className = 'table-actions';
+
+    const btnDownload = document.createElement('button');
+    btnDownload.className = 'mini';
+    btnDownload.textContent = 'Télécharger';
+    btnDownload.onclick = () => downloadCanvasPNG(c, `QR_${t.name}.png`);
+
+    const btnRename = document.createElement('button');
+    btnRename.className = 'mini soft';
+    btnRename.textContent = 'Renommer';
+    btnRename.onclick = async () => {
+      const nn = prompt("Nouveau nom de table :", t.name);
+      if(!nn) return;
+      const { error } = await supabase.from('tables')
+        .update({ name: nn })
+        .eq('id', t.id);
+      if(!error){ await loadTables(); }
+    };
+
+    const btnDelete = document.createElement('button');
+    btnDelete.className = 'mini danger';
+    btnDelete.textContent = 'Supprimer';
+    btnDelete.onclick = async () => {
+      if(!confirm("Supprimer ce QR ?")) return;
+      await supabase.from('tables').delete().eq('id', t.id);
+      card.remove();
+    };
+
+    actions.append(btnDownload, btnRename, btnDelete);
+    card.appendChild(actions);
+    tablesContainer.appendChild(card);
+  }
+
+  addTable.addEventListener('click', async ()=>{
+    if(!paymentActive){ alert("Activez l’abonnement pour créer des QR."); return; }
+    const name = (tableName.value || '').trim();
+    if(!name){ tableName.focus(); return; }
+    const shape = tableShape.value === 'round' ? 'round' : 'square';
+    const color = tableColor.value || '#d4af37';
+
+    const { data, error } = await supabase.from('tables')
+      .insert([{ name, shape, color, restaurant_id: restaurant.id }])
+      .select().single();
+    if(error){ alert("Erreur création table : " + error.message); return; }
+
+    tableName.value='';
+    await renderTableCard(data);
+  });
+
+  // ---------- BOOT ----------
+  await loadSessionAndRestaurant();
+  await renderGeneralQR();
+  await loadTables();
+</script>
+</body>
+</html>

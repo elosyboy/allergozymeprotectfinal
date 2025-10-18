@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Réinitialiser le mot de passe — AllergoZymeProtect</title>
+  <meta name="description" content="Réinitialisation du mot de passe pour les restaurateurs inscrits à AllergoZymeProtect." />
+
+  <style>
+    :root {
+      --gold:#c9a227;
+      --gold-strong:#b68f1e;
+      --gold-soft:#e8d598;
+      --white:#ffffff;
+      --gold-alpha-25:rgba(201,162,39,0.25);
+      --gold-alpha-45:rgba(201,162,39,0.45);
+    }
+
+    *{box-sizing:border-box;}
+    html,body{height:100%;}
+    body{
+      margin:0;
+      font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+      background:radial-gradient(circle at 50% 20%, var(--gold-alpha-25), transparent 60%), var(--white);
+      color:var(--gold-strong);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:40px 20px;
+    }
+
+    .card{
+      width:100%;
+      max-width:420px;
+      background:var(--white);
+      border:1px solid var(--gold-alpha-45);
+      border-radius:22px;
+      padding:32px 28px;
+      box-shadow:0 20px 60px var(--gold-alpha-25);
+      animation:fadeIn .8s ease both;
+    }
+
+    @keyframes fadeIn {
+      from{opacity:0; transform:translateY(12px);}
+      to{opacity:1; transform:translateY(0);}
+    }
+
+    h1{
+      text-align:center;
+      font-size:1.4rem;
+      margin-bottom:4px;
+      color:var(--gold-strong);
+      text-shadow:0 0 10px var(--gold-alpha-45);
+    }
+
+    p.subtitle{
+      text-align:center;
+      font-size:.95rem;
+      opacity:.9;
+      margin-top:0;
+      margin-bottom:26px;
+    }
+
+    form{
+      display:grid;
+      gap:16px;
+    }
+
+    label{
+      font-weight:600;
+      font-size:.9rem;
+    }
+
+    input{
+      width:100%;
+      padding:12px 14px;
+      border:1px solid var(--gold-alpha-45);
+      border-radius:12px;
+      font-size:1rem;
+      transition:border .2s ease, box-shadow .2s ease;
+    }
+
+    input:focus{
+      outline:none;
+      border-color:var(--gold-strong);
+      box-shadow:0 0 8px var(--gold-alpha-25);
+    }
+
+    button{
+      background:var(--gold-strong);
+      color:var(--white);
+      border:none;
+      padding:14px;
+      border-radius:999px;
+      font-weight:700;
+      letter-spacing:.03em;
+      cursor:pointer;
+      transition:transform .2s ease, box-shadow .2s ease;
+    }
+
+    button:hover{
+      transform:translateY(-2px);
+      box-shadow:0 8px 20px var(--gold-alpha-45);
+    }
+
+    .glow {
+      animation: pulse 3s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%,100% { text-shadow: 0 0 8px var(--gold-alpha-45); }
+      50% { text-shadow: 0 0 20px var(--gold-soft); }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1 class="glow">AllergoZymeProtect</h1>
+    <p class="subtitle">Définissez votre nouveau mot de passe</p>
+
+    <form id="reset-form">
+      <label for="password">Nouveau mot de passe</label>
+      <input type="password" id="password" required placeholder="Entrez un nouveau mot de passe" />
+
+      <button type="submit">Valider le nouveau mot de passe</button>
+    </form>
+  </div>
+
+  <script type="module">
+    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+    // ⚙️ Remplace avec tes identifiants Supabase
+    const SUPABASE_URL = "https://TON_PROJET.supabase.co";
+    const SUPABASE_KEY = "TA_CLE_PUBLIC";
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    const form = document.getElementById("reset-form");
+
+    // Quand l’utilisateur arrive sur cette page depuis le mail
+    // Supabase a déjà validé le lien et lui permet de changer son mot de passe
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const newPassword = document.getElementById("password").value.trim();
+
+      const { data, error } = await supabase.auth.updateUser({ password: newPassword });
+
+      if (error) {
+        alert("Erreur : " + error.message);
+      } else {
+        alert("✅ Mot de passe mis à jour avec succès !");
+        window.location.href = "identification.html";
+      }
+    });
+  </script>
+</body>
+</html>

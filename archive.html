@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Archives — AllergoZymeProtect</title>
+<style>
+  :root{--gold:#d4af37;--gold-deep:#b68f1e;--white:#fff;--gold-25:rgba(212,175,55,.25)}
+  *{box-sizing:border-box} html,body{margin:0;background:#fff;color:var(--gold-deep);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
+  header{display:flex;justify-content:space-between;align-items:center;padding:16px 24px;border-bottom:1px solid var(--gold-25)}
+  .brand{display:flex;align-items:center;gap:10px} .brand img{width:36px;height:36px}
+  .btn{border:1px solid var(--gold-deep);padding:8px 14px;border-radius:999px;background:var(--gold-deep);color:#fff;text-decoration:none;font-weight:700}
+  main{max-width:1160px;margin:0 auto;padding:20px}
+  .filters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+  .input{padding:10px 12px;border:1px solid var(--gold-25);border-radius:10px}
+  .columns{display:grid;grid-template-columns:220px 260px 1fr;gap:16px}
+  @media (max-width:1000px){.columns{grid-template-columns:1fr}}
+  .panel{border:1px solid var(--gold-25);border-radius:16px;padding:12px}
+  .list{max-height:60vh;overflow:auto;border-top:1px solid var(--gold-25);margin-top:8px}
+  .item{padding:8px 6px;border-bottom:1px dashed var(--gold-25);cursor:pointer}
+  .item:hover{background:#fff9e7}
+  table{width:100%;border-collapse:collapse}
+  th,td{border-bottom:1px solid var(--gold-25);text-align:left;padding:8px}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><img src="assets/logo.png" alt="logo"><strong>AllergoZyme Protect — Archives</strong></div>
+  <a class="btn" href="dashboard.html">Retour Dashboard</a>
+</header>
+
+<main>
+  <div class="filters">
+    <select id="source" class="input">
+      <option value="all">Tous (Général & Tables)</option>
+      <option value="general">Général</option>
+      <option value="table">Tables</option>
+    </select>
+    <input id="search" class="input" placeholder="Recherche (nom, email, table)"/>
+    <button id="exportDay" class="btn">Exporter le jour en CSV</button>
+  </div>
+
+  <div class="columns">
+    <div class="panel">
+      <strong>Années</strong>
+      <div id="years" class="list"></div>
+    </div>
+    <div class="panel">
+      <strong>Mois</strong>
+      <div id="months" class="list"></div>
+    </div>
+    <div class="panel">
+      <strong>Jours</strong>
+      <div id="days" class="list"></div>
+      <div style="margin-top:12px">
+        <table id="results">
+          <thead>
+            <tr>
+              <th>Date/Heure</th><th>Source</th><th>Table</th><th>Nom</th><th>Email</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script type="module">
+  import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+  const SUPABASE_URL = "https://TON_PROJET.supabase.co";
+  const SUPABASE_ANON_KEY = "TA_CLE_PUBLIC";
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  let restaurant=null, allRows=[];
+  const yearsEl = document.getElementById('years');
+  const monthsEl = document.getElementById('months');
+  const daysEl = document.getElementById('days');
+  const resultsBody = document.querySelector('#results tbody');
+  const sourceSel = document.getElementById('source');
+  const searchInput = document.getElementById('search');
+  const exportBtn = document.getElementById('exportDay');
+
+  // ---- Load session & data
+  async function init(){
+    const { data: sess } = await supabase.auth.getSession();
+    if(!sess?.session){ window.location.href="identification.html"; return; }
+    const email = sess.session.user.email;
+    const { data: rest } = await supabase.from('restaurants').select('*').eq('email', email).single();
+    restaurant = rest;
+
+    // Charger toutes les signatures de l’année en cours +/- 2 ans (optimisation légère)
+    const { data: rows } = await supabase.from('signatures')
+      .select('created_at, source, table_name, client_name, client_email')
+      .eq('restaurant_id', restaurant.id)
+      .order('created_at', { ascending:false });
+    allRows = rows || [];
+    buildYears();
+  }
+
+  function buildYears(){
+    const byYear = new Map();
+    allRows.forEach(r=>{
+      const d = new Date(r.created_at);
+      const y = d.getFullYear();
+      if(!byYear.has(y)) byYear.set(y, []);
+      byYear.get(y).push(r);
+    });
+    yearsEl.innerHTML='';
+    [...byYear.keys()].sort((a,b)=>b-a).forEach(y=>{
+      const div=document.createElement('div');div.className='item';div.textContent=y;
+      div.onclick=()=>buildMonths(byYear.get(y));
+      yearsEl.appendChild(div);
+    });
+  }
+
+  function buildMonths(rows){
+    const byMonth = new Map();
+    rows.forEach(r=>{
+      const d=new Date(r.created_at);
+      const m=d.toLocaleString('fr-FR',{month:'long'}); const key=d.getFullYear()+'-'+(d.getMonth()+1);
+      if(!byMonth.has(key)) byMonth.set(key,{label:m, rows:[]});
+      byMonth.get(key).rows.push(r);
+    });
+    monthsEl.innerHTML=''; daysEl.innerHTML=''; resultsBody.innerHTML='';
+    [...byMonth.entries()].sort((a,b)=>a[0]<b[0]?1:-1).forEach(([key,obj])=>{
+      const div=document.createElement('div');div.className='item';div.textContent=obj.label.charAt(0).toUpperCase()+obj.label.slice(1);
+      div.onclick=()=>buildDays(obj.rows);
+      monthsEl.appendChild(div);
+    });
+  }
+
+  let currentDayRows = [];
+  function buildDays(rows){
+    const byDay = new Map();
+    rows.forEach(r=>{
+      const d=new Date(r.created_at);
+      const day = d.toISOString().slice(0,10);
+      if(!byDay.has(day)) byDay.set(day, []);
+      byDay.get(day).push(r);
+    });
+    daysEl.innerHTML=''; resultsBody.innerHTML='';
+    [...byDay.keys()].sort((a,b)=>a<b?1:-1).forEach(day=>{
+      const div=document.createElement('div');div.className='item';div.textContent=day.split('-').reverse().join('/');
+      div.onclick=()=>{
+        currentDayRows = byDay.get(day);
+        renderRows(currentDayRows);
+      };
+      daysEl.appendChild(div);
+    });
+  }
+
+  function renderRows(rows){
+    const src = sourceSel.value; const q = searchInput.value.toLowerCase().trim();
+    resultsBody.innerHTML='';
+    rows.filter(r=>{
+      const okSrc = (src==='all') || (src==='general' && r.source==='general') || (src==='table' && r.source==='table');
+      if(!okSrc) return false;
+      if(!q) return true;
+      return (r.client_name||'').toLowerCase().includes(q)
+        || (r.client_email||'').toLowerCase().includes(q)
+        || (r.table_name||'').toLowerCase().includes(q);
+    }).forEach(r=>{
+      const tr=document.createElement('tr');
+      const d=new Date(r.created_at);
+      tr.innerHTML = `
+        <td>${d.toLocaleDateString('fr-FR')} ${d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}</td>
+        <td>${r.source==='table'?'Table':'Général'}</td>
+        <td>${r.table_name||'—'}</td>
+        <td>${r.client_name||'—'}</td>
+        <td>${r.client_email||'—'}</td>`;
+      resultsBody.appendChild(tr);
+    });
+  }
+
+  function toCSV(rows){
+    const header = ["date","heure","source","table","nom","email"];
+    const lines = [header.join(",")];
+    rows.forEach(r=>{
+      const d=new Date(r.created_at);
+      const date=d.toLocaleDateString('fr-FR');
+      const heure=d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+      const src = r.source==='table'?'Table':'Général';
+      const line=[date,heure,src,(r.table_name||''),(r.client_name||''),(r.client_email||'')].map(v=>`"${(v||'').replace(/"/g,'""')}"`).join(",");
+      lines.push(line);
+    });
+    return lines.join("\n");
+  }
+
+  sourceSel.onchange=()=>renderRows(currentDayRows);
+  searchInput.oninput=()=>renderRows(currentDayRows);
+  document.getElementById('exportDay').onclick=()=>{
+    if(!currentDayRows.length){ alert("Sélectionnez d’abord un jour."); return; }
+    const csv = toCSV(currentDayRows);
+    const blob = new Blob([csv], { type:"text/csv;charset=utf-8;"});
+    const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download="archives-jour.csv"; a.click();
+  };
+
+  await init();
+</script>
+</body>
+</html>

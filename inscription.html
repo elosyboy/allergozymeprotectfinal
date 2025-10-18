@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inscription — AllergoZymeProtect</title>
+  <style>
+    :root{
+      --gold:#c9a227;
+      --gold-strong:#b68f1e;
+      --white:#fff;
+      --gold-alpha:rgba(201,162,39,0.2);
+    }
+    body{
+      margin:0;
+      font-family:sans-serif;
+      background:var(--white);
+      color:var(--gold-strong);
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      min-height:100vh;
+    }
+    .card{
+      background:var(--white);
+      border:1px solid var(--gold-alpha);
+      border-radius:20px;
+      padding:30px;
+      max-width:420px;
+      width:90%;
+      box-shadow:0 8px 28px rgba(201,162,39,0.1);
+      animation:fadeIn .8s ease both;
+    }
+    h1{
+      text-align:center;
+      color:var(--gold-strong);
+      margin-bottom:20px;
+      text-shadow:0 0 12px var(--gold-alpha);
+    }
+    label{
+      font-weight:bold;
+      font-size:.9rem;
+    }
+    input{
+      width:100%;
+      padding:10px;
+      margin:6px 0 16px;
+      border:1px solid var(--gold-alpha);
+      border-radius:10px;
+      outline:none;
+      transition:border .3s;
+    }
+    input:focus{
+      border-color:var(--gold-strong);
+    }
+    button{
+      width:100%;
+      padding:12px;
+      background:var(--gold-strong);
+      color:var(--white);
+      border:none;
+      border-radius:999px;
+      font-weight:bold;
+      cursor:pointer;
+      transition:transform .2s;
+    }
+    button:hover{
+      transform:translateY(-2px);
+      box-shadow:0 8px 22px rgba(201,162,39,0.3);
+    }
+    #paypal-section{
+      margin-top:25px;
+      text-align:center;
+      display:none;
+    }
+    @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Inscription</h1>
+    <form id="signup-form">
+      <label>Nom de l’établissement</label>
+      <input type="text" id="etablissement" required>
+
+      <label>Adresse</label>
+      <input type="text" id="adresse" required>
+
+      <label>Code postal</label>
+      <input type="text" id="codepostal" required>
+
+      <label>Ville</label>
+      <input type="text" id="ville" required>
+
+      <label>Nom du responsable</label>
+      <input type="text" id="responsable" required>
+
+      <label>Numéro de téléphone</label>
+      <input type="text" id="telephone" required>
+
+      <label>Email</label>
+      <input type="email" id="email" required>
+
+      <label>Mot de passe</label>
+      <input type="password" id="password" required>
+
+      <button type="submit">Créer mon compte</button>
+    </form>
+
+    <div id="paypal-section">
+      <h3>Étape 2 — Paiement de l’adhésion (20€/an)</h3>
+      <div id="paypal-button-container-P-9NN80675AT539804WNDZ4JNY"></div>
+    </div>
+  </div>
+
+  <!-- PayPal SDK -->
+  <script src="https://www.paypal.com/sdk/js?client-id=Afl7FOJLfCDl_Lhe7B2kkJ5QDPsB6JaS3hFBoo2IZ6hgd1i5-CYGjEylX-aVrDQg62tlbEegW9aCtpcZ&vault=true&intent=subscription" data-sdk-integration-source="button-factory"></script>
+
+  <!-- Supabase + Logique -->
+  <script type="module">
+    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+    const supabase = createClient("https://tmrraeutjrcsozijjbzm.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtcnJhZXV0anJjc296aWpqYnptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA4MDA4NzIsImV4cCI6MjA3NjM3Njg3Mn0.015qUFsUyndsesz5RHGKWO1Ipoz7C3vcVZulACGmq0g");
+
+    const form = document.getElementById('signup-form');
+    const paypalSection = document.getElementById('paypal-section');
+    let currentEmail = "";
+
+    form.addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const data = {
+        etablissement: form.etablissement.value,
+        adresse: form.adresse.value,
+        codepostal: form.codepostal.value,
+        ville: form.ville.value,
+        responsable: form.responsable.value,
+        telephone: form.telephone.value,
+        email: form.email.value,
+        paiement:false
+      };
+      currentEmail = data.email;
+      const password = form.password.value;
+
+      // Création du compte
+      const { error:signupError } = await supabase.auth.signUp({
+        email: data.email,
+        password: password
+      });
+      if(signupError){
+        alert("Erreur : " + signupError.message);
+        return;
+      }
+      // Enregistrement dans la table
+      await supabase.from("restaurants").insert([data]);
+      // Affiche le paiement
+      form.style.display="none";
+      paypalSection.style.display="block";
+    });
+
+    // Bouton PayPal
+    paypal.Buttons({
+      style: { shape: 'pill', color: 'black', layout: 'vertical', label: 'subscribe' },
+      createSubscription: function(data, actions) {
+        return actions.subscription.create({
+          plan_id: 'P-9NN80675AT539804WNDZ4JNY'
+        });
+      },
+      onApprove: async function(data, actions) {
+        alert("✅ Paiement validé ! Votre compte est maintenant actif.");
+        await supabase.from("restaurants")
+          .update({ paiement:true })
+          .eq("email", currentEmail);
+        window.location.href = "dashboard.html";
+      }
+    }).render('#paypal-button-container-P-9NN80675AT539804WNDZ4JNY');
+  </script>
+</body>
+</html>
