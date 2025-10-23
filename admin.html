@@ -5,30 +5,88 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Admin — AllergoZymeProtect</title>
   <style>
-    :root { --gold:#d4af37; --gold-deep:#b68f1e; --w:#fff; --g25:rgba(212,175,55,.25); --g12:rgba(212,175,55,.12); }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0; display:grid; place-items:center; background:linear-gradient(180deg,#fff,#fff9e7,#fff);
-      color:var(--gold-deep); font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial
+    :root { 
+      --gold:#d4af37; 
+      --gold-deep:#b68f1e; 
+      --white:#fff; 
+      --g25:rgba(212,175,55,.25); 
+      --g12:rgba(212,175,55,.12); 
     }
-    .card{
-      width:min(360px,90vw); background:var(--w); border:1px solid var(--g25); border-radius:20px; padding:24px;
-      box-shadow:0 24px 70px var(--g12)
+    * { box-sizing:border-box; }
+    html,body { height:100%; }
+    body {
+      margin:0;
+      display:grid;
+      place-items:center;
+      background:linear-gradient(180deg,#fff,#fff9e7,#fff);
+      color:var(--gold-deep);
+      font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
     }
-    h1{margin:0 0 6px; text-align:center; font-size:1.2rem;
-      background:linear-gradient(90deg,var(--gold-deep),var(--gold)); -webkit-background-clip:text; -webkit-text-fill-color:transparent}
-    p{margin:0 0 16px; text-align:center; opacity:.9}
-    form{display:grid; gap:12px}
-    input{padding:12px 14px; border:1px solid var(--g25); border-radius:12px; font-size:1rem}
-    input:focus{outline:none; border-color:var(--gold-deep); box-shadow:0 0 8px var(--g12)}
-    button{
-      padding:12px; border:none; border-radius:12px; background:linear-gradient(90deg,var(--gold-deep),var(--gold));
-      color:#fff; font-weight:800; cursor:pointer; transition:.25s
+    .card {
+      width:min(380px,90vw);
+      background:var(--white);
+      border:1px solid var(--g25);
+      border-radius:20px;
+      padding:26px;
+      box-shadow:0 24px 70px var(--g12);
+      animation:fadeIn .6s ease;
     }
-    button:hover{transform:translateY(-2px); box-shadow:0 12px 28px var(--g25)}
-    .brand{display:flex; gap:10px; align-items:center; justify-content:center; margin-bottom:10px}
-    .brand img{width:40px; height:40px; filter:drop-shadow(0 0 12px var(--g12))}
+    h1 {
+      margin:0 0 8px;
+      text-align:center;
+      font-size:1.3rem;
+      background:linear-gradient(90deg,var(--gold-deep),var(--gold));
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+    }
+    p {
+      margin:0 0 18px;
+      text-align:center;
+      opacity:.85;
+    }
+    form { display:grid; gap:14px; }
+    input {
+      padding:12px 14px;
+      border:1px solid var(--g25);
+      border-radius:12px;
+      font-size:1rem;
+      transition:.25s;
+    }
+    input:focus {
+      outline:none;
+      border-color:var(--gold-deep);
+      box-shadow:0 0 8px var(--g12);
+    }
+    button {
+      padding:12px;
+      border:none;
+      border-radius:12px;
+      background:linear-gradient(90deg,var(--gold-deep),var(--gold));
+      color:#fff;
+      font-weight:800;
+      cursor:pointer;
+      transition:.25s;
+    }
+    button:hover {
+      transform:translateY(-2px);
+      box-shadow:0 12px 28px var(--g25);
+    }
+    .brand {
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:center;
+      margin-bottom:12px;
+    }
+    .brand img {
+      width:42px;
+      height:42px;
+      filter:drop-shadow(0 0 12px var(--g12));
+    }
+    @keyframes fadeIn {
+      from { opacity:0; transform:translateY(10px); }
+      to { opacity:1; transform:translateY(0); }
+    }
   </style>
 </head>
 <body>
@@ -37,7 +95,7 @@
       <img src="assets/logo.png" alt="logo" />
       <h1>AllergoZyme Protect — Admin</h1>
     </div>
-    <p>Connexion administrateur</p>
+    <p>Connexion administrateur sécurisée</p>
     <form id="f">
       <input type="email" id="e" placeholder="Email admin" required />
       <input type="password" id="p" placeholder="Mot de passe" required />
@@ -47,19 +105,21 @@
   </div>
 
   <script>
-    document.getElementById('f').addEventListener('submit', (ev)=>{
+    document.getElementById('f').addEventListener('submit', (ev) => {
       ev.preventDefault();
       const email = document.getElementById('e').value.trim();
       const pass  = document.getElementById('p').value.trim();
       const code  = document.getElementById('c').value.trim();
 
+      // Vérification stricte des identifiants admin
       if (email === "elosyboy@gmail.com" && pass === "Elosygang11" && code === "10111528") {
-        // Active le mode admin : déverrouille le dashboard sans paiement ni session
-        localStorage.setItem('adminMode','true');
-        alert("Accès admin accordé ✅");
+        // Active le mode administrateur complet avec paiement simulé à vie
+        localStorage.setItem('adminMode', 'true');
+        localStorage.setItem('adminPayment', 'true'); // ✅ abonnement à vie simulé
+        alert("✅ Accès administrateur accordé.\nVous allez être redirigé vers le tableau de bord.");
         window.location.href = "dashboard.html";
       } else {
-        alert("Identifiants admin incorrects ❌");
+        alert("❌ Identifiants ou code secret incorrects.");
       }
     });
   </script>
