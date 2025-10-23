@@ -210,20 +210,43 @@
 
   <script type="module">
 
-    // ---------- MODE ADMIN AUTO (accès direct sans paiement) ----------
-    let adminMode = localStorage.getItem("adminMode") === "true";
-    const adminPayment = localStorage.getItem("adminPayment") === "true";
-    if (adminMode && adminPayment) {
-      console.log("🟢 Mode admin actif : accès total sans restriction");
-      document.addEventListener("DOMContentLoaded", () => {
-        const payCircle = document.getElementById('payCircle');
-        const statusText = document.getElementById('statusText');
-        const lockOverlay = document.getElementById('lockOverlay');
-        if (payCircle) payCircle.classList.add('status-green');
-        if (statusText) statusText.textContent = "Abonnement admin actif à vie.";
-        if (lockOverlay) lockOverlay.classList.remove('active');
-      });
-   }
+   // ---------- MODE ADMIN AUTO (accès direct sans paiement) ----------
+let adminMode = localStorage.getItem("adminMode") === "true";
+const adminPayment = localStorage.getItem("adminPayment") === "true";
+
+if (adminMode && adminPayment) {
+  console.log("🟢 Mode admin actif : accès total sans restriction");
+
+  document.addEventListener("DOMContentLoaded", async () => {
+    const payCircle = document.getElementById('payCircle');
+    const statusText = document.getElementById('statusText');
+    const lockOverlay = document.getElementById('lockOverlay');
+
+    if (payCircle) payCircle.classList.add('status-green');
+    if (statusText) statusText.textContent = "Abonnement admin actif à vie.";
+    if (lockOverlay) lockOverlay.classList.remove('active');
+
+    // 🧠 Création automatique du QR général en mode admin
+    try {
+      const canvL = document.getElementById('generalCanvasL');
+      const canvC = document.getElementById('generalCanvasC');
+      const canvR = document.getElementById('generalCanvasR');
+
+      const color = "#b68f1e";
+      const baseUrl = window.location.origin + "/signature.html?restaurant=ADMIN-DEMO&type=general";
+
+      const QR = window.QRCode;
+      await QR.toCanvas(canvL, baseUrl, { color: { dark: color, light: "#fff" }, width: 260 });
+      await QR.toCanvas(canvC, baseUrl, { color: { dark: color, light: "#fff" }, width: 260 });
+      await QR.toCanvas(canvR, baseUrl, { color: { dark: color, light: "#fff" }, width: 260 });
+
+      console.log("✅ QR générés automatiquement (mode admin)");
+    } catch (err) {
+      console.error("Erreur génération QR admin:", err);
+    }
+  });
+}
+
   
  
     import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
