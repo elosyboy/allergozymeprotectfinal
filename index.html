@@ -1,17 +1,35 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" dir="ltr">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>AllergoZymeProtect — Label & Traçabilité Allergènes, Intoxications & Risques</title>
-  <meta name="description" content="AllergoZymeProtect : label numérique + QR code de traçabilité pour intoxications alimentaires, allergies et autres risques. Consentement client en 10 secondes, preuves horodatées, formation hygiène & allergènes, visibilité sur la carte mondiale." />
+
+  <title>AllergoZymeProtect — Label & Traçabilité (Allergies, Intolérances, Diabète)</title>
+  <meta name="description" content="AllergoZymeProtect : label numérique + QR code de traçabilité pour intoxications alimentaires, allergies, intolérances et besoins spécifiques (diabète). Consentement client en 10 secondes, preuves horodatées, formation hygiène & allergènes, visibilité sur la carte mondiale." />
+  <meta name="theme-color" content="#c9a227" />
+  <meta name="color-scheme" content="light" />
+  <link rel="canonical" href="/" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="AllergoZymeProtect — Label & Traçabilité Allergènes" />
+  <meta property="og:description" content="QR code, consentement en 10s, preuves horodatées, formation, Label Map mondiale. Spécial allergies, intolérances, diabète." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="assets/og-cover.png" />
+  <meta property="og:locale" content="fr_FR" />
+
+  <!-- Preconnect (perf). Ne pas modifier Supabase/PayPal : laissé intact. -->
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+  <link rel="preconnect" href="https://votre-projet.supabase.co" crossorigin />
+
+  <!-- Favicon (optionnel) -->
+  <link rel="icon" href="assets/favicon.ico" />
 
   <!-- Palette or et blanc uniquement -->
   <style>
     :root{
-      --gold:#c9a227;        /* or #d4af37 */
-      --gold-strong:#b68f1e; /* accent */
-      --gold-soft:#e8d598;   /* nuances légères */
+      --gold:#c9a227;
+      --gold-strong:#b68f1e;
+      --gold-soft:#e8d598;
       --white:#ffffff;
       --gold-alpha-10:rgba(201,162,39,0.10);
       --gold-alpha-18:rgba(201,162,39,0.18);
@@ -21,7 +39,6 @@
       --gold-alpha-60:rgba(201,162,39,0.60);
     }
 
-    /* Reset & base */
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
@@ -32,11 +49,14 @@
       line-height:1.55;
       -webkit-font-smoothing:antialiased;
       -moz-osx-font-smoothing:grayscale;
+      text-rendering:optimizeLegibility;
     }
     img{max-width:100%;height:auto}
     a{color:var(--gold-strong);text-decoration:none}
     a:hover{text-decoration:underline}
     ul{padding-left:18px}
+
+    .visually-hidden{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 
     /* Micro-accents & glow */
     .glow{ text-shadow:0 0 18px var(--gold-alpha-25), 0 0 2px var(--gold-alpha-60); }
@@ -58,7 +78,7 @@
     .brand img{width:46px;height:46px;object-fit:contain;filter:drop-shadow(0 8px 22px var(--gold-alpha-25))}
     .brand h1{margin:0;font-size:1.1rem;letter-spacing:.14em;font-weight:800;text-transform:uppercase}
 
-    .nav-actions{display:flex;gap:10px}
+    .nav-actions{display:flex;gap:10px;align-items:center}
     .btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:11px 18px;border-radius:14px;border:1px solid var(--gold-strong);color:var(--gold-strong);background:var(--white);transition:transform .2s ease, box-shadow .2s ease}
     .btn:hover{transform:translateY(-1px);box-shadow:0 14px 34px var(--gold-alpha-25)}
     .btn-primary{background:var(--gold-strong);color:var(--white);border-color:var(--gold-strong)}
@@ -128,7 +148,7 @@
     .pills{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 0}
     .pill{border:1px solid var(--gold-alpha-45);border-radius:999px;padding:6px 10px;font-size:.8rem;background:var(--white)}
 
-    /* Marquee line (CSS only illusion) */
+    /* Marquee */
     .marquee{overflow:hidden;white-space:nowrap;border-top:1px solid var(--gold-alpha-25);border-bottom:1px solid var(--gold-alpha-25);background:linear-gradient(180deg, var(--gold-alpha-10), transparent)}
     .marquee span{display:inline-block;padding:10px 24px;animation:marq 24s linear infinite}
     @keyframes marq{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
@@ -137,85 +157,116 @@
     .skip{position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden}
     .skip:focus{position:static;width:auto;height:auto;background:var(--white);border:1px solid var(--gold-strong);padding:6px 10px}
   </style>
+
+  <!-- Données structurées (Logo + Organisation) -->
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"Organization",
+    "name":"AllergoZymeProtect",
+    "url":"https://example.com",
+    "logo":"https://example.com/assets/logo.png",
+    "sameAs":[]
+  }
+  </script>
 </head>
 <body>
   <a class="skip" href="#contenu">Aller au contenu</a>
 
   <!-- Header / Navigation -->
-  <header>
+  <header role="banner">
     <div class="container nav">
       <div class="brand">
-        <img src="assets/logo.png" alt="AllergoZymeProtect logo" />
+        <img src="assets/logo.png" alt="AllergoZymeProtect — logo" loading="eager" decoding="async" />
         <h1 class="glow">AllergoZymeProtect</h1>
       </div>
       <nav class="nav-actions" aria-label="Navigation principale">
-        <!-- Liens vers les futures pages (ne pas inclure ici) -->
-        <a class="btn btn-ghost" href="identification.html" aria-label="Se connecter" data-supabase-action="login">Se connecter</a>
-        <a class="btn btn-primary" href="inscription.html" aria-label="S’inscrire" data-supabase-action="signup">S’inscrire</a>
+        <!-- Ne pas modifier la logique Supabase/PayPal ; liens conservés -->
+        <a class="btn btn-ghost" href="identification.html" aria-label="Se connecter" data-supabase-action="login" rel="nofollow">Se connecter</a>
+        <a class="btn btn-primary" href="inscription.html" aria-label="S’inscrire" data-supabase-action="signup" rel="nofollow">S’inscrire</a>
       </nav>
     </div>
   </header>
 
   <!-- HERO -->
-  <main id="contenu">
+  <main id="contenu" role="main">
     <section class="hero container">
-      <h2 class="glow">Le label numérique qui <em>protège</em> votre établissement — <br/>spécial <strong>intoxications alimentaires</strong>, <strong>allergies</strong> & <strong>autres risques</strong>.</h2>
+      <h2 class="glow">
+        Le label numérique qui <em>protège</em> votre établissement —
+        <br/>spécial <strong>intoxications alimentaires</strong>, <strong>allergies</strong>,
+        <strong>intolérances</strong> & <strong>besoins diabétiques</strong>.
+      </h2>
       <p>
-        Affichez un QR code (général ou par table), informez vos clients en <strong>10 secondes</strong>,
-        collecte de consentements et <strong>preuves horodatées</strong>, formation hygiène & allergènes incluse,
-        visibilité sur la <strong>AllergoZyme Label Map</strong>. Un écosystème complet pour votre <em>sécurité juridique</em>
-        et la <em>confiance des clients</em>.
+        Affichez un QR code (général ou par table), informez vos clients en <strong>10&nbsp;secondes</strong>,
+        collecte de consentements et <strong>preuves horodatées</strong>, formation hygiène & allergènes, visibilité sur la
+        <strong>AllergoZyme Label Map</strong>. Un écosystème complet pour votre <em>sécurité juridique</em>
+        et la <em>confiance des clients allergiques, intolérant·e·s et diabétiques</em>.
       </p>
+
       <div class="goldline" aria-hidden="true"></div>
+
       <div class="hero-cta">
         <a class="btn btn-primary btn-pill" href="inscription.html" data-supabase-action="signup">Adhérer — 20€ / an</a>
         <a class="btn btn-pill" href="#fonctionnement">Voir comment ça marche</a>
       </div>
-      <div class="hero-badges">
+      <div class="hero-badges" aria-label="Points forts">
         <span class="badge">Preuve horodatée</span>
         <span class="badge">QR code par table ou général</span>
         <span class="badge">Formation hygiène & allergènes</span>
-        <span class="badge">Spécial intoxications & allergies</span>
+        <span class="badge">Allergies, intolérances & diabète</span>
         <span class="badge">Label Map mondiale</span>
       </div>
     </section>
 
     <div class="marquee" aria-hidden="true">
-      <span>Spécial intoxications alimentaires • Allergies & autres risques • Consentement client en 10s • Preuves horodatées • 20€ / an • Label Map mondiale • Formation incluse</span>
-      <span>Spécial intoxications alimentaires • Allergies & autres risques • Consentement client en 10s • Preuves horodatées • 20€ / an • Label Map mondiale • Formation incluse</span>
+      <span>Allergies • Intolérances • Diabète • Consentement en 10s • Preuves horodatées • 20€ / an • Label Map mondiale • Formation incluse</span>
+      <span>Allergies • Intolérances • Diabète • Consentement en 10s • Preuves horodatées • 20€ / an • Label Map mondiale • Formation incluse</span>
     </div>
 
     <hr class="divider" />
 
     <!-- Atouts -->
-    <section class="container" id="atouts">
+    <section class="container" id="atouts" aria-labelledby="atouts-titre">
+      <h2 id="atouts-titre" class="visually-hidden">Atouts</h2>
       <div class="grid">
         <article class="card halo">
           <div class="icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24"><path d="M12 2l4 4-9 9-2 5 5-2 9-9 4 4-12 12H2V14L14 2z"/></svg>
+            <svg viewBox="0 0 24 24" role="img" aria-label="Bouclier"><path d="M12 2l4 4-9 9-2 5 5-2 9-9 4 4-12 12H2V14L14 2z"/></svg>
           </div>
-          <h3>Protection juridique centrée “intoxications & allergies”</h3>
-          <p class="muted">Chaque validation client crée une preuve : identité (optionnelle), date, heure et consentement informé sur <strong>intoxications alimentaires</strong>, <strong>allergies</strong> et <strong>autres risques</strong>.</p>
+          <h3>Protection juridique ciblée</h3>
+          <p class="muted">
+            Chaque validation client crée une preuve : identité (optionnelle), date, heure et consentement informé
+            sur <strong>intoxications alimentaires</strong>, <strong>allergies</strong>, <strong>intolérances</strong>
+            et <strong>consignes diabétiques</strong>.
+          </p>
           <div class="pills">
             <span class="pill">Traçabilité</span><span class="pill">Preuve RGPD</span><span class="pill">Confiance</span>
           </div>
         </article>
+
         <article class="card halo">
           <div class="icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 100 18 9 9 0 000-18zm1 5h-2v6h6v-2h-4V8z"/></svg>
+            <svg viewBox="0 0 24 24" role="img" aria-label="Horloge"><path d="M12 3a9 9 0 100 18 9 9 0 000-18zm1 5h-2v6h6v-2h-4V8z"/></svg>
           </div>
           <h3>Mise en place express</h3>
-          <p class="muted">Créez votre compte, générez votre QR code (général ou par table), imprimez. C’est tout : <em>aucun matériel spécial</em>, <em>zéro complexité</em>.</p>
+          <p class="muted">
+            Créez votre compte, générez votre QR code (général ou par table), imprimez.
+            Aucun matériel spécial, zéro complexité.
+          </p>
           <div class="pills">
             <span class="pill">En 15 minutes</span><span class="pill">Sans développement</span>
           </div>
         </article>
+
         <article class="card halo">
           <div class="icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24"><path d="M3 12l18-9-9 18-2-7-7-2z"/></svg>
+            <svg viewBox="0 0 24 24" role="img" aria-label="Éclair"><path d="M3 12l18-9-9 18-2-7-7-2z"/></svg>
           </div>
           <h3>Image rassurante & futuriste</h3>
-          <p class="muted">Un label clair, une interface élégante blanc & or, un processus transparent. Vous valorisez votre établissement et gagnez la confiance.</p>
+          <p class="muted">
+            Un label clair, une interface élégante blanc & or, un processus transparent.
+            Vous valorisez votre établissement et gagnez la confiance.
+          </p>
           <div class="pills">
             <span class="pill">Label officiel</span><span class="pill">UX 10s</span>
           </div>
@@ -224,33 +275,35 @@
     </section>
 
     <!-- Comment ça marche -->
-    <section class="container" id="fonctionnement" style="margin-top:28px">
-      <h2 class="glow" style="text-align:center">Comment ça marche ?</h2>
-      <p style="text-align:center;max-width:880px;margin:6px auto 18px">Un parcours simple, pensé pour le réel. Vos équipes n’ont rien à changer : elles affichent, vos clients scannent, vous êtes protégés.</p>
+    <section class="container" id="fonctionnement" style="margin-top:28px" aria-labelledby="fonctionnement-titre">
+      <h2 id="fonctionnement-titre" class="glow" style="text-align:center">Comment ça marche ?</h2>
+      <p style="text-align:center;max-width:880px;margin:6px auto 18px">
+        Un parcours simple, pensé pour le réel. Vos équipes affichent, vos clients scannent, vous êtes protégés.
+      </p>
 
-      <div class="steps">
-        <div class="step">
-          <div class="num">01</div>
+      <div class="steps" role="list">
+        <div class="step" role="listitem">
+          <div class="num" aria-hidden="true">01</div>
           <strong>Inscription & paiement</strong>
           <p style="margin:6px 0 0">Créez votre compte, réglez l’adhésion <b>20€ / an</b> et accédez à votre tableau de bord sécurisé.</p>
         </div>
-        <div class="step">
-          <div class="num">02</div>
+        <div class="step" role="listitem">
+          <div class="num" aria-hidden="true">02</div>
           <strong>QR code général ou par table</strong>
           <p style="margin:6px 0 0">Générez un QR unique pour tout le restaurant, ou un QR par table (<em>Table 1, 2, 3…</em>) pour une traçabilité ultra-précise.</p>
         </div>
-        <div class="step">
-          <div class="num">03</div>
+        <div class="step" role="listitem">
+          <div class="num" aria-hidden="true">03</div>
           <strong>Consentement client en 10s</strong>
-          <p style="margin:6px 0 0">Le client lit l’information <b>intoxications & allergies</b>, coche “J’ai lu & j’accepte” et valide. Une preuve horodatée est conservée.</p>
+          <p style="margin:6px 0 0">Le client lit l’information <b>allergies, intolérances & consignes diabétiques</b>, coche “J’ai lu & j’accepte”, puis valide. Une preuve horodatée est conservée.</p>
         </div>
       </div>
 
-      <div class="mock">
+      <div class="mock" aria-label="Exemple QR & tableau de bord">
         <div class="panel halo">
           <h3>Votre QR code, prêt à imprimer</h3>
           <p>Chaque établissement reçoit un identifiant unique. Téléchargeable en un clic. Pas besoin de le régénérer.</p>
-          <div class="qrbox" aria-label="Démonstration QR code">
+          <div class="qrbox" aria-label="Démonstration visuelle d’un QR code">
             <div class="qr" aria-hidden="true"></div>
           </div>
           <p class="tiny">Astuce : placez un QR sur le comptoir, les menus, et un QR par table si vous souhaitez tracer finement.</p>
@@ -267,6 +320,7 @@
             <a class="btn btn-primary" href="inscription.html" data-supabase-action="signup">Créer mon compte</a>
             <a class="btn" href="identification.html" data-supabase-action="login">J’ai déjà un compte</a>
           </div>
+          <p id="signatureCountWrap" class="tiny" aria-live="polite">Signatures totales : <strong id="signatureCount">—</strong></p>
         </div>
       </div>
     </section>
@@ -274,11 +328,12 @@
     <hr class="divider" />
 
     <!-- Formation + Label Map -->
-    <section class="container" id="ecosysteme">
+    <section class="container" id="ecosysteme" aria-labelledby="ecosysteme-titre">
+      <h2 id="ecosysteme-titre" class="visually-hidden">Écosystème</h2>
       <div class="row">
         <div class="panel halo">
           <h3>Formation hygiène & allergènes incluse</h3>
-          <p>Un parcours court et concret pour vos équipes : bonnes pratiques d’hygiène, gestion des allergènes, affichages obligatoires, communication client.</p>
+          <p>Parcours court et concret : bonnes pratiques d’hygiène, gestion des allergènes et intolérances, affichages obligatoires, communication client (y compris besoins diabétiques).</p>
           <ul>
             <li>Identification des <b>allergènes majeurs</b> & risques de <b>contamination croisée</b></li>
             <li>Prévention des <b>intoxications alimentaires</b> & procédures</li>
@@ -288,7 +343,7 @@
         </div>
         <div class="panel halo">
           <h3>AllergoZyme Label Map (carte mondiale)</h3>
-          <p>Votre établissement est référencé sur notre carte publique : visibilité accrue, repérage par les clients allergiques, image de sérieux.</p>
+          <p>Votre établissement est référencé sur notre carte publique : visibilité accrue pour les personnes <b>allergiques</b>, <b>intolérantes</b> ou <b>diabétiques</b>.</p>
           <ul>
             <li>Fiche : nom, localisation, logo, label</li>
             <li>Filtrage par ville / cuisine / label</li>
@@ -302,14 +357,16 @@
     </section>
 
     <!-- Tarifs -->
-    <section class="container" id="tarifs" style="margin-top:26px">
-      <h2 class="glow" style="text-align:center">Un prix unique. Une vraie sérénité.</h2>
-      <p style="text-align:center;max-width:820px;margin:6px auto 18px">Nous avons pensé AllergoZymeProtect pour être accessible et immédiatement utile, pour tous les volumes de service.</p>
+    <section class="container" id="tarifs" style="margin-top:26px" aria-labelledby="tarifs-titre">
+      <h2 id="tarifs-titre" class="glow" style="text-align:center">Un prix unique. Une vraie sérénité.</h2>
+      <p style="text-align:center;max-width:820px;margin:6px auto 18px">
+        Conçu pour être accessible et immédiatement utile, quels que soient vos volumes de service.
+      </p>
       <div class="pricing">
         <div class="price halo">
-          <span class="tag">Recommandé</span>
+          <span class="tag" aria-label="Offre recommandée">Recommandé</span>
           <h4>Adhésion annuelle</h4>
-          <div class="money">20€ / an</div>
+          <div class="money" aria-label="Prix">20€ / an</div>
           <ul>
             <li>QR code officiel (général & par table)</li>
             <li>Collecte illimitée de consentements</li>
@@ -331,7 +388,7 @@
         </div>
         <div class="price">
           <h4>Pourquoi maintenant ?</h4>
-          <p>Les attentes des consommateurs évoluent. Montrez que vous prenez le sujet au sérieux, et protégez votre équipe.</p>
+          <p>Les attentes des consommateurs évoluent. Montrez que vous prenez au sérieux allergies, intolérances et besoins diabétiques, tout en protégeant votre équipe.</p>
           <div class="pills">
             <span class="pill">Confiance</span><span class="pill">Traçabilité</span><span class="pill">Preuve</span>
           </div>
@@ -340,14 +397,14 @@
     </section>
 
     <!-- Preuves sociales -->
-    <section class="container" style="margin-top:26px">
-      <h2 class="glow" style="text-align:center">Ils en parlent</h2>
+    <section class="container" style="margin-top:26px" aria-labelledby="temoignages-titre">
+      <h2 id="temoignages-titre" class="glow" style="text-align:center">Ils en parlent</h2>
       <div class="quotes">
         <blockquote class="quote">
           « On ajoute le QR sur la carte, les clients scannent, c’est réglé. » — <em>Julien, bistro moderne</em>
         </blockquote>
         <blockquote class="quote">
-          « Enfin un outil simple pour rassurer les allergiques et se protéger correctement. » — <em>Sarah, coffee shop</em>
+          « Enfin un outil simple pour rassurer les allergiques, intolérant·e·s et diabétiques. » — <em>Sarah, coffee shop</em>
         </blockquote>
         <blockquote class="quote">
           « L’export des signatures est impeccable pour prouver notre bonne foi. » — <em>Camille, traiteur</em>
@@ -355,64 +412,72 @@
       </div>
     </section>
 
-    <!-- FAQ riche (HTML only) -->
-    <section class="container" id="faq" style="margin-top:26px;max-width:1000px">
-      <h2 class="glow" style="text-align:center">Questions fréquentes</h2>
+    <!-- FAQ -->
+    <section class="container" id="faq" style="margin-top:26px;max-width:1000px" aria-labelledby="faq-titre">
+      <h2 id="faq-titre" class="glow" style="text-align:center">Questions fréquentes</h2>
 
-      <details style="margin:10px 0"><summary>AllergoZymeProtect est-il <b>spécial</b> pour les <b>intoxications alimentaires</b> et les <b>allergies</b> ?</summary>
-        Oui. Toute l’expérience (texte, consentement, formation, preuves) est explicitement centrée sur les <b>intoxications alimentaires</b>, les <b>allergies</b> et les <b>autres risques</b> de consommation.
+      <details style="margin:10px 0">
+        <summary>AllergoZymeProtect est-il <b>spécial</b> pour <b>allergies</b>, <b>intolérances</b> et <b>besoins diabétiques</b> ?</summary>
+        Oui. Toute l’expérience (texte, consentement, formation, preuves) est explicitement centrée sur ces sujets, y compris l’information adaptée aux personnes diabétiques.
       </details>
 
-      <details style="margin:10px 0"><summary>Le client doit-il toujours <b>valider</b> ?</summary>
-        Recommandé pour chaque service. La validation en 10 secondes crée une <b>preuve horodatée</b> qui protège l’établissement en cas de litige.
+      <details style="margin:10px 0">
+        <summary>Le client doit-il toujours <b>valider</b> ?</summary>
+        Recommandé pour chaque service. La validation en 10 secondes crée une <b>preuve horodatée</b> qui protège en cas de litige.
       </details>
 
-      <details style="margin:10px 0"><summary>QR code <b>général</b> vs <b>par table</b> ?</summary>
-        Le QR général suffit pour la plupart des cas. Un QR par table offre une traçabilité plus fine (utile pour les grands volumes ou zones sensibles).
+      <details style="margin:10px 0">
+        <summary>QR code <b>général</b> vs <b>par table</b> ?</summary>
+        Le QR général suffit pour la plupart des cas. Un QR par table offre une traçabilité plus fine.
       </details>
 
-      <details style="margin:10px 0"><summary>Que contient la formation hygiène & allergènes ?</summary>
-        Les fondamentaux d’hygiène, la gestion des allergènes, l’affichage obligatoire, la prévention des <b>intoxications alimentaires</b> et la communication client.
+      <details style="margin:10px 0">
+        <summary>Que contient la formation hygiène & allergènes ?</summary>
+        Les fondamentaux d’hygiène, la gestion des allergènes et intolérances, l’affichage obligatoire, la prévention des <b>intoxications alimentaires</b> et la communication client.
       </details>
 
-      <details style="margin:10px 0"><summary>Où sont stockées les données ?</summary>
-        Dans l’UE, de façon sécurisée. Vous pouvez exporter et supprimer sur demande (conformité RGPD). (Intégration Supabase prévue via <code>index.js</code>).
+      <details style="margin:10px 0">
+        <summary>Où sont stockées les données ?</summary>
+        Dans l’UE, de façon sécurisée. Export & suppression sur demande (conformité RGPD). (Intégration Supabase prévue via <code>index.js</code>).
       </details>
 
-      <details style="margin:10px 0"><summary>Est-ce légalement valable ?</summary>
-        La validation ne supprime pas la responsabilité en cas de <b>faute grave</b>, mais démontre l’information et la bonne foi : un <b>bouclier administratif</b> très solide contre les litiges abusifs.
+      <details style="margin:10px 0">
+        <summary>Est-ce légalement valable ?</summary>
+        La validation ne supprime pas la responsabilité en cas de <b>faute grave</b>, mais démontre l’information et la bonne foi : un <b>bouclier administratif</b> solide contre les litiges abusifs.
       </details>
 
-      <details style="margin:10px 0"><summary>Peut-on refuser de donner email / téléphone ?</summary>
-        Oui. Les champs personnels peuvent rester optionnels : l’horodatage et l’ID de session suffisent souvent à constituer une preuve utile.
+      <details style="margin:10px 0">
+        <summary>Peut-on refuser de donner email / téléphone ?</summary>
+        Oui. Les champs personnels peuvent rester optionnels : l’horodatage et l’ID de session suffisent souvent.
       </details>
 
-      <details style="margin:10px 0"><summary>Combien ça coûte ?</summary>
+      <details style="margin:10px 0">
+        <summary>Combien ça coûte ?</summary>
         <b>20€ / an</b> par établissement, formation et Label Map incluses.
       </details>
     </section>
 
     <!-- Mentions claires -->
-    <section class="container" style="margin-top:26px">
+    <section class="container" style="margin-top:26px" aria-labelledby="mentions-titre">
       <div class="panel halo">
-        <h3>Mentions essentielles</h3>
+        <h3 id="mentions-titre">Mentions essentielles</h3>
         <ul>
-          <li>AllergoZymeProtect vise la prévention et la preuve d’information pour <b>intoxications alimentaires</b>, <b>allergies</b> & <b>autres risques</b>.</li>
+          <li>Prévention & preuve d’information pour <b>intoxications alimentaires</b>, <b>allergies</b>, <b>intolérances</b> & <b>besoins diabétiques</b>.</li>
           <li>La validation client n’exonère pas une <b>faute grave</b>, mais renforce la protection en cas de litige injustifié.</li>
-          <li>Respect RGPD : droit d’accès, d’effacement, durée de conservation limitée et transparente.</li>
+          <li>Respect RGPD : droit d’accès/effacement, conservation limitée et transparente.</li>
         </ul>
       </div>
     </section>
   </main>
 
   <!-- Footer -->
-  <footer>
+  <footer role="contentinfo">
     <div class="container foot">
       <div style="display:flex;align-items:center;gap:10px">
-        <img src="assets/logo.png" alt="logo" style="width:28px;height:28px;object-fit:contain" />
+        <img src="assets/logo.png" alt="AllergoZymeProtect — logo" width="28" height="28" style="width:28px;height:28px;object-fit:contain" loading="lazy" decoding="async" />
         <strong>AllergoZymeProtect</strong>
       </div>
-      <nav style="display:flex;gap:14px">
+      <nav style="display:flex;gap:14px" aria-label="Pied de page">
         <a href="inscription.html" data-supabase-action="signup">S’inscrire</a>
         <a href="identification.html" data-supabase-action="login">Se connecter</a>
         <a href="#tarifs">Tarifs</a>
@@ -421,7 +486,9 @@
       </nav>
     </div>
   </footer>
-  <script type="module" src="index.js"></script>
 
+  <!-- Important : ne pas modifier l’initialisation Supabase/PayPal dans index.js -->
+  <script type="module" src="index.js"></script>
+  <noscript><div class="container tiny">Activez JavaScript pour profiter de toutes les fonctionnalités d’AllergoZymeProtect.</div></noscript>
 </body>
 </html>

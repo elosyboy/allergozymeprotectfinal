@@ -4,43 +4,105 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>Archives — AllergoZymeProtect</title>
+<meta name="description" content="Archives intelligentes : jour/mois/année, recherche, filtres par statut, allergènes, diabète, export CSV, purge >30j.">
 <style>
-  :root{--gold:#d4af37;--gold-deep:#b68f1e;--white:#fff;--gold-25:rgba(212,175,55,.25)}
-  *{box-sizing:border-box} html,body{margin:0;background:#fff;color:var(--gold-deep);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
-  header{display:flex;justify-content:space-between;align-items:center;padding:16px 24px;border-bottom:1px solid var(--gold-25)}
-  .brand{display:flex;align-items:center;gap:10px} .brand img{width:36px;height:36px}
-  .btn{border:1px solid var(--gold-deep);padding:8px 14px;border-radius:999px;background:var(--gold-deep);color:#fff;text-decoration:none;font-weight:700}
-  main{max-width:1160px;margin:0 auto;padding:20px}
-  .filters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+  :root{
+    --gold:#d4af37; --gold-deep:#b68f1e; --white:#fff;
+    --gold-10:rgba(212,175,55,.10); --gold-18:rgba(212,175,55,.18); --gold-25:rgba(212,175,55,.25);
+    --warn:#d97706; --red:#c2410c; --green:#22c55e; --blue:#2563eb;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:#fff;color:var(--gold-deep);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
+  header{
+    position:sticky; top:0; z-index:10;
+    display:flex; justify-content:space-between; align-items:center;
+    padding:16px 24px; border-bottom:1px solid var(--gold-25);
+    backdrop-filter:blur(8px); background:rgba(255,255,255,.86)
+  }
+  .brand{display:flex;align-items:center;gap:10px}
+  .brand img{width:36px;height:36px;filter:drop-shadow(0 0 10px var(--gold-18))}
+  .btn{border:1px solid var(--gold-deep);padding:8px 14px;border-radius:999px;background:var(--gold-deep);color:#fff;text-decoration:none;font-weight:700;cursor:pointer}
+  .btn-ghost{background:#fff;color:var(--gold-deep)}
+  main{max-width:1260px;margin:0 auto;padding:18px}
+  .bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:12px}
+  .left, .right{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
   .input{padding:10px 12px;border:1px solid var(--gold-25);border-radius:10px}
   .columns{display:grid;grid-template-columns:220px 260px 1fr;gap:16px}
-  @media (max-width:1000px){.columns{grid-template-columns:1fr}}
-  .panel{border:1px solid var(--gold-25);border-radius:16px;padding:12px}
-  .list{max-height:60vh;overflow:auto;border-top:1px solid var(--gold-25);margin-top:8px}
-  .item{padding:8px 6px;border-bottom:1px dashed var(--gold-25);cursor:pointer}
+  @media (max-width:1100px){.columns{grid-template-columns:1fr}}
+  .panel{border:1px solid var(--gold-25);border-radius:16px;padding:12px;background:#fff;box-shadow:0 10px 26px var(--gold-10)}
+  .list{max-height:58vh;overflow:auto;border-top:1px solid var(--gold-25);margin-top:8px}
+  .item{padding:9px 8px;border-bottom:1px dashed var(--gold-25);cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px}
   .item:hover{background:#fff9e7}
-  table{width:100%;border-collapse:collapse}
-  th,td{border-bottom:1px solid var(--gold-25);text-align:left;padding:8px}
+  .folder{display:inline-flex;align-items:center;gap:8px}
+
+  /* Tableau résultats */
+  table{width:100%;border-collapse:collapse;font-size:.95rem}
+  thead th{position:sticky;top:0;background:#fff;border-bottom:2px solid var(--gold-25);padding:8px;text-align:left;z-index:1}
+  td{border-bottom:1px solid var(--gold-25);padding:8px;vertical-align:top}
+  .tag{display:inline-block;border:1px solid var(--gold-25);border-radius:999px;padding:2px 8px;font-size:.78rem;background:#fff}
+  .muted{opacity:.9}
+  .today{border:1px solid var(--gold-25);border-radius:16px;padding:10px;background:linear-gradient(180deg,#fff,#fffaf0)}
+
+  /* Pastilles statut (pulsing) */
+  .sig{display:inline-flex;align-items:center;gap:8px}
+  .pulse{width:12px;height:12px;border-radius:50%;position:relative}
+  .pulse::after{
+    content:""; position:absolute; inset:-6px; border-radius:50%;
+    border:2px solid currentColor; opacity:.5; animation:pulse 1.6s ease-out infinite
+  }
+  @keyframes pulse{0%{transform:scale(.6);opacity:.7}70%{transform:scale(1.3);opacity:0}100%{transform:scale(1.3);opacity:0}}
+  .status-allergy{color:var(--red)}
+  .status-diabetes{color:var(--blue)}
+  .status-none{color:var(--green)}
+  .status-intol{color:var(--warn)}
+
+  /* Hints de ligne */
+  .row-danger{background:linear-gradient(90deg, rgba(194,65,12,.06), transparent)}
+  .row-warn{background:linear-gradient(90deg, rgba(217,119,6,.06), transparent)}
+  .row-blue{background:linear-gradient(90deg, rgba(37,99,235,.06), transparent)}
+  .row-ok{background:linear-gradient(90deg, rgba(34,197,94,.06), transparent)}
 </style>
 </head>
 <body>
 <header>
   <div class="brand"><img src="assets/logo.png" alt="logo"><strong>AllergoZyme Protect — Archives</strong></div>
-  <a class="btn" href="dashboard.html">Retour Dashboard</a>
+  <div class="right">
+    <a class="btn-ghost btn" href="dashboard.html">Retour Dashboard</a>
+    <a id="contactBtn" class="btn-ghost btn" href="#">Contacter AllergoZyme</a>
+  </div>
 </header>
 
 <main>
-  <div class="filters">
-    <select id="source" class="input">
-      <option value="all">Tous (Général & Tables)</option>
-      <option value="general">Général</option>
-      <option value="table">Tables</option>
-    </select>
-    <input id="search" class="input" placeholder="Recherche (nom, email, table)"/>
-    <button id="exportDay" class="btn">Exporter le jour en CSV</button>
+  <!-- Barre filtres / recherche / export -->
+  <div class="bar">
+    <div class="left">
+      <select id="source" class="input" title="Source">
+        <option value="all">Tous (Général & Tables)</option>
+        <option value="general">Général</option>
+        <option value="table">Tables</option>
+      </select>
+      <select id="status" class="input" title="Statut">
+        <option value="all">Tous statuts</option>
+        <option value="allergy">Allergie</option>
+        <option value="intol">Intolérance</option>
+        <option value="diabetes">Diabète</option>
+        <option value="none">Aucun</option>
+      </select>
+      <input id="search" class="input" placeholder="Recherche (nom, contact, table, allergie)"/>
+    </div>
+    <div class="right">
+      <button id="exportDay" class="btn">Exporter le jour en CSV</button>
+    </div>
   </div>
 
-  <div class="columns">
+  <!-- Aujourd’hui -->
+  <section class="panel today" id="todayBox" aria-live="polite">
+    <strong>Signatures du jour</strong>
+    <div id="todayStats" class="muted" style="margin-top:6px"></div>
+  </section>
+
+  <!-- Arborescence Année → Mois → Jour -->
+  <div class="columns" style="margin-top:12px">
     <div class="panel">
       <strong>Années</strong>
       <div id="years" class="list"></div>
@@ -56,7 +118,15 @@
         <table id="results">
           <thead>
             <tr>
-              <th>Date/Heure</th><th>Source</th><th>Table</th><th>Nom</th><th>Email</th>
+              <th>Statut</th>
+              <th>Date/Heure</th>
+              <th>Source</th>
+              <th>Table</th>
+              <th>Nom</th>
+              <th>Contact</th>
+              <th>Allergènes / Intolérances</th>
+              <th>Diabète</th>
+              <th>Autres</th>
             </tr>
           </thead>
           <tbody></tbody>
@@ -68,8 +138,10 @@
 
 <script type="module">
   import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
-  const SUPABASE_URL = "https://TON_PROJET.supabase.co";
-  const SUPABASE_ANON_KEY = "TA_CLE_PUBLIC";
+
+  // === CONFIG SUPABASE (mêmes identifiants que ton dashboard) ===
+  const SUPABASE_URL = "https://tmrraeutjrcsozijjbzm.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtcnJhZXV0anJjc296aWpqYnptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA4MDA4NzIsImV4cCI6MjA3NjM3Njg3Mn0.015qUFsUyndsesz5RHGKWO1Ipoz7C3vcVZulACGmq0g";
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   let restaurant=null, allRows=[];
@@ -78,53 +150,169 @@
   const daysEl = document.getElementById('days');
   const resultsBody = document.querySelector('#results tbody');
   const sourceSel = document.getElementById('source');
+  const statusSel = document.getElementById('status');
   const searchInput = document.getElementById('search');
   const exportBtn = document.getElementById('exportDay');
+  const todayStats = document.getElementById('todayStats');
+  const contactBtn = document.getElementById('contactBtn');
 
-  // ---- Load session & data
+  // Helpers
+  const fmtDate = (d)=>d.toLocaleDateString('fr-FR');
+  const fmtTime = (d)=>d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+
+  function classifyStatus(row){
+    // Statut : allergie > diabète > intolérance > aucun (si plusieurs, priorité allergie puis diabète)
+    const allergens = (row.allergenes||"").toLowerCase();
+    const others = (row.autres_allergenes||"").toLowerCase();
+    const diab = !!row.diabete || allergens.includes('diabète') || allergens.includes('diabete');
+    const hasAllergy = !!allergens && !allergens.includes('aucun');
+    const hasIntol = others.includes('intol') || others.includes('lactose') || others.includes('histamine');
+
+    if (hasAllergy) return 'allergy';
+    if (diab) return 'diabetes';
+    if (hasIntol) return 'intol';
+    if (row.aucune_allergie) return 'none';
+
+    // fallback s'il n'y a rien
+    if (!allergens && !others && !diab) return 'none';
+    return 'none';
+  }
+
+  function statusCell(status){
+    if(status==='allergy')   return `<span class="sig"><span class="pulse status-allergy"></span> Allergie</span>`;
+    if(status==='diabetes')  return `<span class="sig"><span class="pulse status-diabetes"></span> Diabète</span>`;
+    if(status==='intol')     return `<span class="sig"><span class="pulse status-intol"></span> Intolérance</span>`;
+    return `<span class="sig"><span class="pulse status-none"></span> Aucun</span>`;
+  }
+
+  function rowClass(status){
+    return status==='allergy'?'row-danger'
+         : status==='diabetes'?'row-blue'
+         : status==='intol'?'row-warn'
+         : 'row-ok';
+  }
+
+  // Fusion avec Passport si la signature n'a pas d'allergènes
+  async function hydrateWithPassport(rows){
+    if(!rows?.length) return rows;
+    const contacts = Array.from(new Set(rows.map(r=>(r.emailnumero_client||'').trim()).filter(Boolean)));
+    if(!contacts.length) return rows;
+
+    const BATCH=50;
+    const passportMap = new Map();
+    for(let i=0;i<contacts.length;i+=BATCH){
+      const chunk = contacts.slice(i,i+BATCH);
+      const { data } = await supabase
+        .from('passports')
+        .select('contact, allergenes, autres_allergenes, diabete')
+        .in('contact', chunk);
+      (data||[]).forEach(p=> passportMap.set((p.contact||'').trim(), p));
+    }
+
+    return rows.map(r=>{
+      const key=(r.emailnumero_client||'').trim();
+      if ((!r.allergenes && !r.autres_allergenes && typeof r.diabete!=='boolean') && passportMap.has(key)) {
+        const p=passportMap.get(key);
+        return {
+          ...r,
+          allergenes: p.allergenes || r.allergenes,
+          autres_allergenes: p.autres_allergenes || r.autres_allergenes,
+          diabete: (typeof r.diabete==='boolean') ? r.diabete : !!p.diabete
+        };
+      }
+      return r;
+    });
+  }
+
+  // Récupère session & données
   async function init(){
     const { data: sess } = await supabase.auth.getSession();
     if(!sess?.session){ window.location.href="identification.html"; return; }
     const email = sess.session.user.email;
-    const { data: rest } = await supabase.from('restaurants').select('*').eq('email', email).single();
+    const { data: rest, error } = await supabase.from('restaurants').select('*').eq('email', email).single();
+    if(error || !rest){ alert("Impossible de charger votre profil restaurant."); return; }
     restaurant = rest;
 
-    // Charger toutes les signatures de l’année en cours +/- 2 ans (optimisation légère)
-    const { data: rows } = await supabase.from('signatures')
-      .select('created_at, source, table_name, client_name, client_email')
+    if (!restaurant.paiement) {
+      alert("Abonnement inactif. Les archives ne sont pas accessibles.");
+      window.location.href = "dashboard.html";
+      return;
+    }
+
+    let { data: rows } = await supabase.from('signatures')
+      .select('id, created_at, restaurant_id, table_ref, nom_client, emailnumero_client, allergenes, autres_allergenes, diabete, aucune_allergie')
       .eq('restaurant_id', restaurant.id)
       .order('created_at', { ascending:false });
-    allRows = rows || [];
-    buildYears();
+
+    rows = rows || [];
+
+    // Masquer > 30 jours (UI)
+    const now = new Date();
+    rows = rows.filter(r=>{
+      const d = new Date(r.created_at);
+      return ((now - d) / 86400000) <= 30;
+    });
+
+    // Hydrate avec Passport si nécessaire
+    rows = await hydrateWithPassport(rows);
+
+    allRows = rows;
+    buildToday(rows);
+    buildYears(rows);
+    setupContactButton();
   }
 
-  function buildYears(){
+  function buildToday(rows){
+    const todayKey = new Date().toISOString().slice(0,10);
+    const todayRows = rows.filter(r=> (new Date(r.created_at)).toISOString().slice(0,10)===todayKey);
+    if(!todayRows.length){ todayStats.textContent = "Aucune signature aujourd’hui."; return; }
+
+    const stats = { allergy:0, diabetes:0, intol:0, none:0 };
+    todayRows.forEach(r=>{
+      stats[classifyStatus(r)]++;
+    });
+
+    todayStats.innerHTML = `
+      Total aujourd’hui : <strong>${todayRows.length}</strong> —
+      <span class="tag">Allergie : ${stats.allergy}</span>
+      <span class="tag">Diabète : ${stats.diabetes}</span>
+      <span class="tag">Intolérance : ${stats.intol}</span>
+      <span class="tag">Aucun : ${stats.none}</span>
+    `;
+  }
+
+  function buildYears(rows){
     const byYear = new Map();
-    allRows.forEach(r=>{
+    rows.forEach(r=>{
       const d = new Date(r.created_at);
       const y = d.getFullYear();
       if(!byYear.has(y)) byYear.set(y, []);
       byYear.get(y).push(r);
     });
     yearsEl.innerHTML='';
-    [...byYear.keys()].sort((a,b)=>b-a).forEach(y=>{
-      const div=document.createElement('div');div.className='item';div.textContent=y;
-      div.onclick=()=>buildMonths(byYear.get(y));
+    Array.from(byYear.keys()).sort((a,b)=>b-a).forEach(y=>{
+      const div=document.createElement('div');div.className='item';
+      div.innerHTML = `<span class="folder">📁 ${y}</span><span class="muted">${byYear.get(y).length}</span>`;
+      div.onclick=()=>buildMonths(byYear.get(y), y);
       yearsEl.appendChild(div);
     });
   }
 
-  function buildMonths(rows){
+  function buildMonths(rows, year){
     const byMonth = new Map();
     rows.forEach(r=>{
       const d=new Date(r.created_at);
-      const m=d.toLocaleString('fr-FR',{month:'long'}); const key=d.getFullYear()+'-'+(d.getMonth()+1);
-      if(!byMonth.has(key)) byMonth.set(key,{label:m, rows:[]});
+      const mIndex = d.getMonth()+1;
+      const mName = d.toLocaleString('fr-FR',{month:'long'});
+      const key = `${year}-${String(mIndex).padStart(2,'0')}`;
+      if(!byMonth.has(key)) byMonth.set(key,{label:mName, rows:[]});
       byMonth.get(key).rows.push(r);
     });
     monthsEl.innerHTML=''; daysEl.innerHTML=''; resultsBody.innerHTML='';
-    [...byMonth.entries()].sort((a,b)=>a[0]<b[0]?1:-1).forEach(([key,obj])=>{
-      const div=document.createElement('div');div.className='item';div.textContent=obj.label.charAt(0).toUpperCase()+obj.label.slice(1);
+    Array.from(byMonth.entries()).sort((a,b)=>a[0]<b[0]?1:-1).forEach(([key,obj])=>{
+      const label = obj.label.charAt(0).toUpperCase()+obj.label.slice(1);
+      const div=document.createElement('div');div.className='item';
+      div.innerHTML = `<span class="folder">📁 ${label}</span><span class="muted">${obj.rows.length}</span>`;
       div.onclick=()=>buildDays(obj.rows);
       monthsEl.appendChild(div);
     });
@@ -140,54 +328,85 @@
       byDay.get(day).push(r);
     });
     daysEl.innerHTML=''; resultsBody.innerHTML='';
-    [...byDay.keys()].sort((a,b)=>a<b?1:-1).forEach(day=>{
-      const div=document.createElement('div');div.className='item';div.textContent=day.split('-').reverse().join('/');
+    Array.from(byDay.keys()).sort((a,b)=>a<b?1:-1).forEach(day=>{
+      const label = day.split('-').reverse().join('/');
+      const div=document.createElement('div');div.className='item';
+      div.innerHTML = `<span class="folder">📄 ${label}</span><span class="muted">${byDay.get(day).length}</span>`;
       div.onclick=()=>{
         currentDayRows = byDay.get(day);
         renderRows(currentDayRows);
+        setupContactButton(day);
       };
       daysEl.appendChild(div);
     });
   }
 
   function renderRows(rows){
-    const src = sourceSel.value; const q = searchInput.value.toLowerCase().trim();
+    const src = sourceSel.value;
+    const statusFilter = statusSel.value;
+    const q = (searchInput.value||"").toLowerCase().trim();
     resultsBody.innerHTML='';
-    rows.filter(r=>{
-      const okSrc = (src==='all') || (src==='general' && r.source==='general') || (src==='table' && r.source==='table');
-      if(!okSrc) return false;
-      if(!q) return true;
-      return (r.client_name||'').toLowerCase().includes(q)
-        || (r.client_email||'').toLowerCase().includes(q)
-        || (r.table_name||'').toLowerCase().includes(q);
-    }).forEach(r=>{
-      const tr=document.createElement('tr');
-      const d=new Date(r.created_at);
-      tr.innerHTML = `
-        <td>${d.toLocaleDateString('fr-FR')} ${d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}</td>
-        <td>${r.source==='table'?'Table':'Général'}</td>
-        <td>${r.table_name||'—'}</td>
-        <td>${r.client_name||'—'}</td>
-        <td>${r.client_email||'—'}</td>`;
-      resultsBody.appendChild(tr);
-    });
+    rows
+      .filter(r=>{
+        const source = r.table_ref ? 'table' : 'general';
+        const okSrc = (src==='all') || (src===source);
+        if(!okSrc) return false;
+
+        // filtre statut
+        const st = classifyStatus(r);
+        const okStatus = (statusFilter==='all') || (statusFilter===st);
+        if(!okStatus) return false;
+
+        if(!q) return true;
+        const hay = [
+          r.nom_client||'',
+          r.emailnumero_client||'',
+          r.table_ref||'',
+          r.allergenes||'',
+          r.autres_allergenes||''
+        ].join(' ').toLowerCase();
+        return hay.includes(q);
+      })
+      .forEach(r=>{
+        const d=new Date(r.created_at);
+        const source = r.table_ref ? 'Table' : 'Général';
+        const st = classifyStatus(r);
+        const rowCls = rowClass(st);
+
+        const tr=document.createElement('tr');
+        tr.className = rowCls;
+        tr.innerHTML = `
+          <td>${statusCell(st)}</td>
+          <td>${fmtDate(d)} ${fmtTime(d)}</td>
+          <td>${source}</td>
+          <td>${r.table_ref || '—'}</td>
+          <td>${r.nom_client || '—'}</td>
+          <td>${r.emailnumero_client || '—'}</td>
+          <td>${r.allergenes ? `<span class="tag">${r.allergenes}</span>` : '—'}</td>
+          <td>${r.diabete ? '<span class="tag">Oui</span>' : 'Non'}</td>
+          <td>${r.autres_allergenes || '—'}</td>
+        `;
+        resultsBody.appendChild(tr);
+      });
   }
 
   function toCSV(rows){
-    const header = ["date","heure","source","table","nom","email"];
+    const header = ["date","heure","source","table","nom","contact","allergenes","autres","diabete","aucune_allergie"];
     const lines = [header.join(",")];
     rows.forEach(r=>{
       const d=new Date(r.created_at);
-      const date=d.toLocaleDateString('fr-FR');
-      const heure=d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
-      const src = r.source==='table'?'Table':'Général';
-      const line=[date,heure,src,(r.table_name||''),(r.client_name||''),(r.client_email||'')].map(v=>`"${(v||'').replace(/"/g,'""')}"`).join(",");
+      const date=fmtDate(d);
+      const heure=fmtTime(d);
+      const src = r.table_ref ? 'Table' : 'Général';
+      const line=[date,heure,src,(r.table_ref||''),(r.nom_client||''),(r.emailnumero_client||''),(r.allergenes||''),(r.autres_allergenes||''),(r.diabete?'oui':'non'),(r.aucune_allergie?'oui':'non')]
+        .map(v=>`"${(v||'').replace(/"/g,'""')}"`).join(",");
       lines.push(line);
     });
     return lines.join("\n");
   }
 
   sourceSel.onchange=()=>renderRows(currentDayRows);
+  statusSel.onchange=()=>renderRows(currentDayRows);
   searchInput.oninput=()=>renderRows(currentDayRows);
   document.getElementById('exportDay').onclick=()=>{
     if(!currentDayRows.length){ alert("Sélectionnez d’abord un jour."); return; }
@@ -195,6 +414,20 @@
     const blob = new Blob([csv], { type:"text/csv;charset=utf-8;"});
     const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download="archives-jour.csv"; a.click();
   };
+
+  function setupContactButton(dayISO){
+    const dayLabel = dayISO ? dayISO.split('-').reverse().join('/') : '';
+    const subject = encodeURIComponent(`Demande d'assistance — Archives ${dayLabel || 'sélection en cours'}`);
+    const body = encodeURIComponent(
+`Bonjour AllergoZymeProtect,
+
+Je souhaite récupérer des informations concernant les archives du ${dayLabel || '(préciser la date)'} pour mon établissement (${restaurant?.etablissement || restaurant?.email}).
+
+Merci,
+${restaurant?.responsable || ''}`
+    );
+    contactBtn.href = `mailto:allergozymepro@gmail.com?subject=${subject}&body=${body}`;
+  }
 
   await init();
 </script>
