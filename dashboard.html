@@ -70,7 +70,6 @@
     .qr-logo-under img{width:28px;height:28px;object-fit:contain;filter:drop-shadow(0 0 6px var(--gold-18))}
     .qr-logo-under .brand-small{font-weight:800;letter-spacing:.08em}
 
-    /* Mini-plan (localStorage uniquement pour le placement visuel) */
     .floor{
       min-height:420px;border:1px dashed var(--gold-45);border-radius:18px;background:linear-gradient(180deg,#fff,rgba(212,175,55,.06));
       position:relative; overflow:hidden
@@ -131,9 +130,7 @@
     <!-- Statut -->
     <section class="card" id="statusCard">
       <h2>Statut de l’abonnement</h2>
-      <p class="muted" id="statusText" style="text-align:center">
-        Vérification en cours…
-      </p>
+      <p class="muted" id="statusText" style="text-align:center">Vérification en cours…</p>
     </section>
 
     <!-- QR général x3 -->
@@ -148,7 +145,7 @@
       </div>
       <div class="qr-triple">
         <div class="qr-card">
-          <div class="qr-wrap"><canvas id="generalCanvasL" width="260" height="260" aria-label="QR code général (gauche)"></canvas></div>
+          <div class="qr-wrap"><canvas id="generalCanvasL" width="260" height="310" aria-label="QR code général (gauche)"></canvas></div>
           <div class="qr-logo-under">
             <img src="assets/logo.png" alt="AllergoZyme logo" />
             <span class="brand-small">AllergoZyme</span>
@@ -158,7 +155,7 @@
           </div>
         </div>
         <div class="qr-card">
-          <div class="qr-wrap"><canvas id="generalCanvasC" width="260" height="260" aria-label="QR code général (centre)"></canvas></div>
+          <div class="qr-wrap"><canvas id="generalCanvasC" width="260" height="310" aria-label="QR code général (centre)"></canvas></div>
           <div class="qr-logo-under">
             <img src="assets/logo.png" alt="AllergoZyme logo" />
             <span class="brand-small">AllergoZyme</span>
@@ -168,7 +165,7 @@
           </div>
         </div>
         <div class="qr-card">
-          <div class="qr-wrap"><canvas id="generalCanvasR" width="260" height="260" aria-label="QR code général (droite)"></canvas></div>
+          <div class="qr-wrap"><canvas id="generalCanvasR" width="260" height="310" aria-label="QR code général (droite)"></canvas></div>
           <div class="qr-logo-under">
             <img src="assets/logo.png" alt="AllergoZyme logo" />
             <span class="brand-small">AllergoZyme</span>
@@ -276,19 +273,15 @@
       await QR.toCanvas(tmp, url, { color:{ dark:darkHex, light:"#ffffff" }, width:260, margin:1 });
       const ctx = canvas.getContext('2d');
       canvas.width = tmp.width; canvas.height = tmp.height + 50; // espace dessous pour logo
-      // Dessine le QR
       ctx.fillStyle = "#ffffff";
       ctx.fillRect(0,0,canvas.width,canvas.height);
       ctx.drawImage(tmp, 0, 0);
-
-      // Logo SOUS le QR (centré)
       const logo = new Image();
       logo.src = 'assets/logo.png';
       await new Promise(res => { logo.onload = res; logo.onerror = res; });
       const size = 28;
       const lx = (canvas.width - size)/2;
       const ly = tmp.height + (50 - size)/2;
-      // pastille légère
       ctx.save();
       ctx.shadowColor = 'rgba(0,0,0,.08)';
       ctx.shadowBlur = 6;
@@ -303,6 +296,30 @@
       return url.toString();
     }
 
+    // ---------- AUTO-VERIFY PAIEMENT (toutes les 24h) ----------
+    function scheduleDailyPaymentRefresh(){
+      const ONE_DAY = 24*60*60*1000;
+      setInterval(async ()=>{
+        await refreshPaymentStatus();
+      }, ONE_DAY);
+    }
+
+    async function refreshPaymentStatus(){
+      if (adminMode || !restaurant?.email) return;
+      const { data, error } = await supabase
+        .from('restaurants')
+        .select('paiement, general_qr_color')
+        .eq('email', restaurant.email)
+        .single();
+      if(!error && data){
+        restaurant.paiement = data.paiement;
+        if(data.general_qr_color) generalColor.value = data.general_qr_color;
+        setPaymentUI(!!restaurant.paiement);
+        await renderGeneralQR(false);
+        await loadTableList();
+      }
+    }
+
     // ---------- SESSION + RESTAURANT ----------
     async function loadSessionAndRestaurant(){
       if (adminMode) {
@@ -313,6 +330,7 @@
           general_qr_color: '#b68f1e'
         };
         setPaymentUI(true);
+        await ensureQrGeneral(); // même en admin mode pour URL locale
         return;
       }
 
@@ -324,19 +342,44 @@
       const { data, error } = await supabase.from('restaurants').select('*').eq('email', email).single();
       if(error || !data){ alert("Impossible de charger le profil restaurateur."); return; }
       restaurant = data;
-
-      // statut paiement
-      const active = !!restaurant.paiement;
-      setPaymentUI(active);
-
-      // couleur initiale
+      setPaymentUI(!!restaurant.paiement);
       if(restaurant.general_qr_color){ generalColor.value = restaurant.general_qr_color; }
+
+      // ✅ crée automatiquement le QR général s'il n'existe pas
+      await ensureQrGeneral();
+
+      // 🔁 vérification abonnement toutes les 24h
+      scheduleDailyPaymentRefresh();
+    }
+
+    // ---------- AUTO-GÉNÉRATION DU QR GÉNÉRAL ----------
+    async function ensureQrGeneral(){
+      if (!restaurant?.id) return;
+      const { data: existing, error } = await supabase
+        .from("qr_codes")
+        .select("id, couleur, url_qr")
+        .eq("restaurant_id", restaurant.id)
+        .eq("type", "general")
+        .maybeSingle();
+
+      const colorHex = restaurant.general_qr_color || "#d4af37";
+      const qrUrl = baseScanUrl({ restaurant: restaurant.id, type: "general" });
+
+      if (!existing) {
+        await supabase.from("qr_codes").insert([
+          { restaurant_id: restaurant.id, type: "general", couleur: colorHex, forme: "carre", url_qr: qrUrl }
+        ]);
+      } else {
+        // Si l'URL a changé (domaine), on met à jour
+        if (existing.url_qr !== qrUrl || existing.couleur !== colorHex) {
+          await supabase.from("qr_codes").update({ url_qr: qrUrl, couleur: colorHex }).eq("id", existing.id);
+        }
+      }
     }
 
     // ---------- PAYPAL ----------
     payBtn.addEventListener('click', () => {
       if (adminMode) { alert("Mode Admin actif — paiement non requis."); return; }
-      // scroll à la zone Paypal dans l'overlay (si verrouillé)
       lockOverlay.classList.add('active');
       const zone = document.getElementById('paypal-button-container-P-9NN80675AT539804WNDZ4JNY');
       if(zone){ zone.scrollIntoView({ behavior:'smooth', block:'center' }); }
@@ -344,7 +387,7 @@
 
     retryStatus.addEventListener('click', async ()=>{
       await loadSessionAndRestaurant();
-      await renderGeneralQR(); // pour rafraîchir affichage
+      await renderGeneralQR(); // rafraîchir affichage
       await loadTableList();
     });
 
@@ -359,6 +402,7 @@
           }
           setPaymentUI(true);
           alert("Paiement validé. Votre abonnement est actif.");
+          await ensureQrGeneral();
           await renderGeneralQR(true);
           await loadTableList();
         },
@@ -368,7 +412,6 @@
 
     // ---------- QR GENERAL (x3) ----------
     async function renderGeneralQR(save=false){
-      // si abonnement inactif : ne pas afficher de QR
       if(!paymentActive && !adminMode){
         const placeholders = [canvL, canvC, canvR];
         placeholders.forEach(cv=>{
@@ -396,8 +439,6 @@
       if (!adminMode && save && restaurant?.id) {
         await supabase.from('restaurants').update({ general_qr_color: colorHex }).eq('id', restaurant.id);
 
-        // Optionnel : consigner/mettre à jour un enregistrement de QR général
-        // (utile si tu veux une trace dans qr_codes)
         const { data: exist } = await supabase
           .from('qr_codes')
           .select('id')
@@ -486,7 +527,6 @@
         return;
       }
 
-      // Lire dans qr_codes (type = table)
       const { data, error } = adminMode
         ? { data: loadFloorLayout().map(t=>({ id:t.name, table_nom:t.name, forme:(t.shape==='round'?'rond':'carre'), couleur:t.color, url_qr: baseScanUrl({ restaurant: restaurant?.id || 'DEMO', table: t.name }) })), error:null }
         : await supabase
@@ -504,7 +544,6 @@
       const card = document.createElement('div');
       card.className = 'table-card';
 
-      // Visuel forme
       const shapeEl = document.createElement('div');
       const isRound = (t.forme === 'rond' || t.forme === 'round');
       shapeEl.className = 'table-shape '+(isRound?'round':'');
@@ -512,7 +551,6 @@
       shapeEl.textContent = t.table_nom || t.name || 'Table';
       card.appendChild(shapeEl);
 
-      // Canvas QR
       const c = document.createElement('canvas');
       card.appendChild(c);
 
@@ -520,7 +558,6 @@
       const col = t.couleur || '#d4af37';
       await drawQRCode(c, url, col);
 
-      // Actions
       const actions = document.createElement('div');
       actions.className = 'table-actions';
 
@@ -602,9 +639,9 @@
 
     // ---------- BOOT ----------
     await loadSessionAndRestaurant();
-    await renderGeneralQR(false);   // génération initiale
-    renderFloor();                  // plan local
-    await loadTableList();          // tables
+    await renderGeneralQR(false);
+    renderFloor();
+    await loadTableList();
 
     // ---------- LISTENERS ----------
     window.addEventListener('online', async ()=>{ await loadSessionAndRestaurant(); });
