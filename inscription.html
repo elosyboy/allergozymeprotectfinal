@@ -104,6 +104,9 @@
       <label>Mot de passe</label>
       <input type="password" id="password" required>
 
+      <label>Code promotionnel AllergoZyme Passport (facultatif)</label>
+      <input type="text" id="promo_code" placeholder="Ex: AZP-EL123">
+
       <button type="submit">Créer mon compte</button>
     </form>
 
@@ -119,29 +122,36 @@
   <!-- Supabase + Logique -->
   <script type="module">
     import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
-    const supabase = createClient("https://tmrraeutjrcsozijjbzm.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtcnJhZXV0anJjc296aWpqYnptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA4MDA4NzIsImV4cCI6MjA3NjM3Njg3Mn0.015qUFsUyndsesz5RHGKWO1Ipoz7C3vcVZulACGmq0g");
+    const supabase = createClient(
+      "https://tmrraeutjrcsozijjbzm.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtcnJhZXV0anJjc296aWpqYnptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA4MDA4NzIsImV4cCI6MjA3NjM3Njg3Mn0.015qUFsUyndsesz5RHGKWO1Ipoz7C3vcVZulACGmq0g"
+    );
 
     const form = document.getElementById('signup-form');
     const paypalSection = document.getElementById('paypal-section');
     let currentEmail = "";
+    let currentPromo = "";
 
     form.addEventListener('submit', async (e)=>{
       e.preventDefault();
       const data = {
-        etablissement: form.etablissement.value,
-        adresse: form.adresse.value,
-        codepostal: form.codepostal.value,
-        ville: form.ville.value,
-        responsable: form.responsable.value,
-        telephone: form.telephone.value,
-        email: form.email.value,
+        etablissement: document.getElementById("etablissement").value,
+        adresse: document.getElementById("adresse").value,
+        codepostal: document.getElementById("codepostal").value,
+        ville: document.getElementById("ville").value,
+        responsable: document.getElementById("responsable").value,
+        telephone: document.getElementById("telephone").value,
+        email: document.getElementById("email").value,
+        promo_code: document.getElementById("promo_code").value.trim() || null,
         paiement:false
       };
-      currentEmail = data.email;
-      const password = form.password.value;
 
-      // Création du compte
-      const { error:signupError } = await supabase.auth.signUp({
+      currentEmail = data.email;
+      currentPromo = data.promo_code;
+      const password = document.getElementById("password").value;
+
+      // Création du compte Supabase
+      const { error: signupError } = await supabase.auth.signUp({
         email: data.email,
         password: password
       });
@@ -149,9 +159,15 @@
         alert("Erreur : " + signupError.message);
         return;
       }
-      // Enregistrement dans la table
-      await supabase.from("restaurants").insert([data]);
-      // Affiche le paiement
+
+      // Enregistrement dans la table restaurants
+      const { error: insertError } = await supabase.from("restaurants").insert([data]);
+      if(insertError){
+        alert("Erreur : " + insertError.message);
+        return;
+      }
+
+      // Passe à l’étape PayPal
       form.style.display="none";
       paypalSection.style.display="block";
     });
@@ -166,9 +182,25 @@
       },
       onApprove: async function(data, actions) {
         alert("✅ Paiement validé ! Votre compte est maintenant actif.");
+
+        // Mise à jour du restaurant
         await supabase.from("restaurants")
           .update({ paiement:true })
           .eq("email", currentEmail);
+
+        // Si code promo présent → enregistrer le paiement en attente pour l’admin
+        if (currentPromo) {
+          await supabase.from("paiements_en_attente").insert([
+            {
+              code_promo: currentPromo,
+              restaurant_email: currentEmail,
+              montant: 10,
+              date_paiement: new Date(),
+              statut: "en_attente"
+            }
+          ]);
+        }
+
         window.location.href = "dashboard.html";
       }
     }).render('#paypal-button-container-P-9NN80675AT539804WNDZ4JNY');

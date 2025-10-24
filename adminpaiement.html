@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Paiements — AllergoZymeProtect</title>
+  <style>
+    :root {
+      --gold:#d4af37;
+      --gold-dark:#b68f1e;
+      --bg:#fff;
+      --g12:rgba(212,175,55,.12);
+      --g25:rgba(212,175,55,.25);
+    }
+    body {
+      margin:0;
+      font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+      background:linear-gradient(180deg,#fff,#fff9e7);
+      color:var(--gold-dark);
+      min-height:100vh;
+      padding:40px 20px;
+    }
+    h1 {
+      text-align:center;
+      background:linear-gradient(90deg,var(--gold-dark),var(--gold));
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      margin-bottom:20px;
+    }
+    table {
+      width:100%;
+      border-collapse:collapse;
+      background:var(--bg);
+      border:1px solid var(--g25);
+      border-radius:16px;
+      overflow:hidden;
+      box-shadow:0 8px 40px var(--g12);
+    }
+    th, td {
+      padding:12px 10px;
+      border-bottom:1px solid var(--g12);
+      text-align:left;
+    }
+    th {
+      background:var(--gold-dark);
+      color:#fff;
+      font-weight:600;
+    }
+    tr:hover {
+      background:rgba(212,175,55,.06);
+    }
+    button {
+      padding:6px 12px;
+      border:none;
+      border-radius:8px;
+      font-weight:bold;
+      cursor:pointer;
+      transition:transform .2s, box-shadow .2s;
+    }
+    button:hover {
+      transform:translateY(-2px);
+    }
+    .valider {
+      background:var(--gold-dark);
+      color:#fff;
+      box-shadow:0 4px 12px var(--g25);
+    }
+    .refuser {
+      background:#f44336;
+      color:#fff;
+      box-shadow:0 4px 12px rgba(244,67,54,0.25);
+    }
+    .etat {
+      font-weight:bold;
+      padding:4px 8px;
+      border-radius:6px;
+    }
+    .en_attente { background:rgba(255,215,0,0.2); color:#b68f1e; }
+    .valide { background:rgba(0,128,0,0.15); color:#2e7d32; }
+    .refuse { background:rgba(255,0,0,0.15); color:#c62828; }
+    .note {
+      text-align:center;
+      margin-top:20px;
+      opacity:.8;
+    }
+  </style>
+</head>
+<body>
+  <h1>Gestion des Paiements — Admin AllergoZymeProtect</h1>
+
+  <table id="paiementsTable">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Code promo</th>
+        <th>Email restaurant</th>
+        <th>PayPal vendeur</th>
+        <th>Montant (€)</th>
+        <th>Date</th>
+        <th>Statut</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="paiementsBody">
+      <tr><td colspan="8" class="note">Chargement en cours...</td></tr>
+    </tbody>
+  </table>
+
+  <script type="module">
+    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+    const supabase = createClient(
+      "https://tmrraeutjrcsozijjbzm.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtcnJhZXV0anJjc296aWpqYnptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA4MDA4NzIsImV4cCI6MjA3NjM3Njg3Mn0.015qUFsUyndsesz5RHGKWO1Ipoz7C3vcVZulACGmq0g"
+    );
+
+    const PAY_FUNCTION_URL = "https://tmrraeutjrcsozijjbzm.functions.supabase.co/pay-vendeur"; // ✅ ton endpoint de fonction
+
+    const body = document.getElementById("paiementsBody");
+
+    // Charger les paiements
+    async function loadPaiements(){
+      const { data, error } = await supabase
+        .from("paiements_en_attente")
+        .select("*")
+        .order("date_paiement", { ascending: false });
+
+      body.innerHTML = "";
+      if(error || !data?.length){
+        body.innerHTML = "<tr><td colspan='8' class='note'>Aucun paiement enregistré.</td></tr>";
+        return;
+      }
+
+      for(const row of data){
+        const tr = document.createElement("tr");
+
+        const tdId = document.createElement("td"); tdId.textContent = row.id;
+        const tdCode = document.createElement("td"); tdCode.textContent = row.code_promo || "-";
+        const tdMail = document.createElement("td"); tdMail.textContent = row.restaurant_email;
+        const tdPaypal = document.createElement("td"); tdPaypal.textContent = row.paypal_email_vendeur || "-";
+        const tdMontant = document.createElement("td"); tdMontant.textContent = row.montant?.toFixed(2) || "10.00";
+        const tdDate = document.createElement("td");
+        tdDate.textContent = new Date(row.date_paiement).toLocaleString("fr-FR");
+
+        const tdStatut = document.createElement("td");
+        tdStatut.textContent = row.statut;
+        tdStatut.className = "etat " + row.statut;
+
+        const tdActions = document.createElement("td");
+        if(row.statut === "en_attente"){
+          const bValider = document.createElement("button");
+          bValider.textContent = "Valider & Payer";
+          bValider.className = "valider";
+          bValider.onclick = ()=> effectuerPaiement(row.id);
+
+          const bRefuser = document.createElement("button");
+          bRefuser.textContent = "Refuser";
+          bRefuser.className = "refuser";
+          bRefuser.style.marginLeft="6px";
+          bRefuser.onclick = ()=> updateStatut(row.id, "refuse");
+
+          tdActions.append(bValider,bRefuser);
+        } else {
+          tdActions.textContent = "—";
+        }
+
+        tr.append(tdId, tdCode, tdMail, tdPaypal, tdMontant, tdDate, tdStatut, tdActions);
+        body.appendChild(tr);
+      }
+    }
+
+    async function effectuerPaiement(id){
+      if(!confirm("⚠️ Confirmer le paiement via PayPal ?")) return;
+
+      try {
+        const resp = await fetch(PAY_FUNCTION_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ payout_id: id })
+        });
+
+        const res = await resp.json();
+
+        if(resp.ok){
+          alert("✅ Paiement effectué avec succès !");
+          await loadPaiements();
+        } else {
+          console.error(res);
+          alert("❌ Erreur : " + (res.error || "Échec du paiement."));
+        }
+      } catch (err){
+        alert("Erreur réseau : " + err.message);
+      }
+    }
+
+    async function updateStatut(id, newStatus){
+      const confirmMsg = newStatus === "valide"
+        ? "Confirmer le paiement vendeur ?"
+        : "Refuser ce paiement ?";
+      if(!confirm(confirmMsg)) return;
+
+      const { error } = await supabase
+        .from("paiements_en_attente")
+        .update({ statut: newStatus })
+        .eq("id", id);
+
+      if(error){ alert("Erreur : " + error.message); }
+      else {
+        alert("Statut mis à jour !");
+        loadPaiements();
+      }
+    }
+
+    loadPaiements();
+  </script>
+</body>
+</html>
