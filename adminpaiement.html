@@ -46,9 +46,7 @@
       color:#fff;
       font-weight:600;
     }
-    tr:hover {
-      background:rgba(212,175,55,.06);
-    }
+    tr:hover { background:rgba(212,175,55,.06); }
     button {
       padding:6px 12px;
       border:none;
@@ -57,32 +55,14 @@
       cursor:pointer;
       transition:transform .2s, box-shadow .2s;
     }
-    button:hover {
-      transform:translateY(-2px);
-    }
-    .valider {
-      background:var(--gold-dark);
-      color:#fff;
-      box-shadow:0 4px 12px var(--g25);
-    }
-    .refuser {
-      background:#f44336;
-      color:#fff;
-      box-shadow:0 4px 12px rgba(244,67,54,0.25);
-    }
-    .etat {
-      font-weight:bold;
-      padding:4px 8px;
-      border-radius:6px;
-    }
+    button:hover { transform:translateY(-2px); }
+    .valider { background:var(--gold-dark); color:#fff; box-shadow:0 4px 12px var(--g25); }
+    .refuser { background:#f44336; color:#fff; box-shadow:0 4px 12px rgba(244,67,54,0.25); }
+    .etat { font-weight:bold; padding:4px 8px; border-radius:6px; }
     .en_attente { background:rgba(255,215,0,0.2); color:#b68f1e; }
     .valide { background:rgba(0,128,0,0.15); color:#2e7d32; }
     .refuse { background:rgba(255,0,0,0.15); color:#c62828; }
-    .note {
-      text-align:center;
-      margin-top:20px;
-      opacity:.8;
-    }
+    .note { text-align:center; margin-top:20px; opacity:.8; }
   </style>
 </head>
 <body>
@@ -106,6 +86,41 @@
     </tbody>
   </table>
 
+  <!-- 🔒 Écran de verrouillage administrateur -->
+  <div id="lockScreen" style="
+    position:fixed;
+    top:0;left:0;width:100%;height:100%;
+    background:white;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    z-index:9999;
+    font-family:system-ui;
+    color:#b68f1e;
+  ">
+    <h2>🔐 Accès restreint</h2>
+    <p>Entrez le mot de passe administrateur pour continuer.</p>
+    <input id="adminPass" type="password" placeholder="Mot de passe" style="
+      padding:10px;
+      border:1px solid rgba(0,0,0,0.1);
+      border-radius:8px;
+      margin-top:8px;
+      text-align:center;
+    ">
+    <button id="unlockBtn" style="
+      margin-top:10px;
+      padding:10px 18px;
+      border:none;
+      border-radius:8px;
+      background:#b68f1e;
+      color:white;
+      font-weight:bold;
+      cursor:pointer;
+    ">Entrer</button>
+    <p id="errorMsg" style="color:red;margin-top:6px;display:none;">Mot de passe incorrect.</p>
+  </div>
+
   <script type="module">
     import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
     const supabase = createClient(
@@ -113,26 +128,43 @@
       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtcnJhZXV0anJjc296aWpqYnptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA4MDA4NzIsImV4cCI6MjA3NjM3Njg3Mn0.015qUFsUyndsesz5RHGKWO1Ipoz7C3vcVZulACGmq0g"
     );
 
-    const PAY_FUNCTION_URL = "https://tmrraeutjrcsozijjbzm.functions.supabase.co/pay-vendeur"; // ✅ ton endpoint de fonction
-
+    const PAY_FUNCTION_URL = "https://tmrraeutjrcsozijjbzm.functions.supabase.co/approve-payout";
     const body = document.getElementById("paiementsBody");
 
-    // Charger les paiements
-    async function loadPaiements(){
+    // --- Protection locale mot de passe "Elosygang11" ---
+    const lockScreen = document.getElementById("lockScreen");
+    const unlockBtn = document.getElementById("unlockBtn");
+    const errorMsg = document.getElementById("errorMsg");
+
+    unlockBtn.addEventListener("click", () => {
+      const val = document.getElementById("adminPass").value.trim();
+      if (val === "Elosygang11") {
+        lockScreen.style.display = "none";
+        localStorage.setItem("adminUnlocked", "true");
+      } else {
+        errorMsg.style.display = "block";
+      }
+    });
+
+    if (localStorage.getItem("adminUnlocked") === "true") {
+      lockScreen.style.display = "none";
+    }
+
+    // --- Chargement des paiements ---
+    async function loadPaiements() {
       const { data, error } = await supabase
         .from("paiements_en_attente")
         .select("*")
         .order("date_paiement", { ascending: false });
 
       body.innerHTML = "";
-      if(error || !data?.length){
+      if (error || !data?.length) {
         body.innerHTML = "<tr><td colspan='8' class='note'>Aucun paiement enregistré.</td></tr>";
         return;
       }
 
-      for(const row of data){
+      for (const row of data) {
         const tr = document.createElement("tr");
-
         const tdId = document.createElement("td"); tdId.textContent = row.id;
         const tdCode = document.createElement("td"); tdCode.textContent = row.code_promo || "-";
         const tdMail = document.createElement("td"); tdMail.textContent = row.restaurant_email;
@@ -140,25 +172,24 @@
         const tdMontant = document.createElement("td"); tdMontant.textContent = row.montant?.toFixed(2) || "10.00";
         const tdDate = document.createElement("td");
         tdDate.textContent = new Date(row.date_paiement).toLocaleString("fr-FR");
-
         const tdStatut = document.createElement("td");
         tdStatut.textContent = row.statut;
         tdStatut.className = "etat " + row.statut;
-
         const tdActions = document.createElement("td");
-        if(row.statut === "en_attente"){
+
+        if (row.statut === "en_attente") {
           const bValider = document.createElement("button");
           bValider.textContent = "Valider & Payer";
           bValider.className = "valider";
-          bValider.onclick = ()=> effectuerPaiement(row.id);
+          bValider.onclick = () => effectuerPaiement(row.id);
 
           const bRefuser = document.createElement("button");
           bRefuser.textContent = "Refuser";
           bRefuser.className = "refuser";
-          bRefuser.style.marginLeft="6px";
-          bRefuser.onclick = ()=> updateStatut(row.id, "refuse");
+          bRefuser.style.marginLeft = "6px";
+          bRefuser.onclick = () => updateStatut(row.id, "refuse");
 
-          tdActions.append(bValider,bRefuser);
+          tdActions.append(bValider, bRefuser);
         } else {
           tdActions.textContent = "—";
         }
@@ -168,42 +199,53 @@
       }
     }
 
-    async function effectuerPaiement(id){
-      if(!confirm("⚠️ Confirmer le paiement via PayPal ?")) return;
+    // --- Paiement PayPal réel ---
+    async function effectuerPaiement(id) {
+      if (!confirm("⚠️ Confirmer le paiement PayPal réel ?")) return;
 
       try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+          alert("Erreur : Vous devez être connecté en tant qu’admin.");
+          return;
+        }
+
+        const token = session.access_token;
         const resp = await fetch(PAY_FUNCTION_URL, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token
+          },
           body: JSON.stringify({ payout_id: id })
         });
 
         const res = await resp.json();
-
-        if(resp.ok){
-          alert("✅ Paiement effectué avec succès !");
+        if (resp.ok) {
+          alert("✅ Paiement PayPal envoyé avec succès !");
           await loadPaiements();
         } else {
           console.error(res);
-          alert("❌ Erreur : " + (res.error || "Échec du paiement."));
+          alert("❌ Erreur PayPal : " + (res.error || "Échec du paiement."));
         }
-      } catch (err){
+      } catch (err) {
         alert("Erreur réseau : " + err.message);
       }
     }
 
-    async function updateStatut(id, newStatus){
+    // --- Mise à jour manuelle du statut ---
+    async function updateStatut(id, newStatus) {
       const confirmMsg = newStatus === "valide"
         ? "Confirmer le paiement vendeur ?"
         : "Refuser ce paiement ?";
-      if(!confirm(confirmMsg)) return;
+      if (!confirm(confirmMsg)) return;
 
       const { error } = await supabase
         .from("paiements_en_attente")
         .update({ statut: newStatus })
         .eq("id", id);
 
-      if(error){ alert("Erreur : " + error.message); }
+      if (error) { alert("Erreur : " + error.message); }
       else {
         alert("Statut mis à jour !");
         loadPaiements();
