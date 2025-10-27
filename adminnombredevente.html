@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — Nombre de ventes par vendeur</title>
+  <style>
+    :root {
+      --gold: #d4af37;
+      --gold-dark: #b68f1e;
+      --bg: #fff;
+      --g12: rgba(212,175,55,.12);
+      --g25: rgba(212,175,55,.25);
+    }
+    body {
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      background: linear-gradient(180deg, #fff, #fff9e7);
+      color: var(--gold-dark);
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    h1 {
+      text-align: center;
+      background: linear-gradient(90deg, var(--gold-dark), var(--gold));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 30px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--bg);
+      border: 1px solid var(--g25);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 8px 40px var(--g12);
+    }
+    th, td {
+      padding: 12px 10px;
+      border-bottom: 1px solid var(--g12);
+      text-align: left;
+    }
+    th {
+      background: var(--gold-dark);
+      color: #fff;
+      font-weight: 600;
+    }
+    tr:hover { background: rgba(212,175,55,.06); }
+    .note { text-align:center; margin-top:20px; opacity:.8; }
+  </style>
+</head>
+<body>
+  <h1>📊 Ventes par vendeur — AllergoZymeProtect</h1>
+
+  <table id="vendeursTable">
+    <thead>
+      <tr>
+        <th>Email vendeur</th>
+        <th>Code promo</th>
+        <th>Nombre de ventes</th>
+        <th>Total (€)</th>
+      </tr>
+    </thead>
+    <tbody id="vendeursBody">
+      <tr><td colspan="4" class="note">Chargement des données...</td></tr>
+    </tbody>
+  </table>
+
+  <!-- 🔒 Accès sécurisé admin -->
+  <div id="lockScreen" style="
+    position:fixed;top:0;left:0;width:100%;height:100%;
+    background:white;display:flex;flex-direction:column;
+    justify-content:center;align-items:center;z-index:9999;
+    font-family:system-ui;color:#b68f1e;">
+    <h2>🔐 Accès restreint</h2>
+    <p>Entrez le mot de passe administrateur pour continuer.</p>
+    <input id="adminPass" type="password" placeholder="Mot de passe" style="
+      padding:10px;border:1px solid rgba(0,0,0,0.1);
+      border-radius:8px;margin-top:8px;text-align:center;">
+    <button id="unlockBtn" style="
+      margin-top:10px;padding:10px 18px;border:none;
+      border-radius:8px;background:#b68f1e;color:white;
+      font-weight:bold;cursor:pointer;">Entrer</button>
+    <p id="errorMsg" style="color:red;margin-top:6px;display:none;">Mot de passe incorrect.</p>
+  </div>
+
+  <script type="module">
+    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+    const supabase = createClient(
+      "https://tmrraeutjrcsozijjbzm.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtcnJhZXV0anJjc296aWpqYnptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA4MDA4NzIsImV4cCI6MjA3NjM3Njg3Mn0.015qUFsUyndsesz5RHGKWO1Ipoz7C3vcVZulACGmq0g"
+    );
+
+    const body = document.getElementById("vendeursBody");
+
+    // 🔒 Protection locale admin
+    const lockScreen = document.getElementById("lockScreen");
+    const unlockBtn = document.getElementById("unlockBtn");
+    const errorMsg = document.getElementById("errorMsg");
+
+    unlockBtn.addEventListener("click", () => {
+      const val = document.getElementById("adminPass").value.trim();
+      if (val === "Elosygang11") {
+        lockScreen.style.display = "none";
+        localStorage.setItem("adminUnlocked", "true");
+        loadVentes();
+      } else {
+        errorMsg.style.display = "block";
+      }
+    });
+
+    if (localStorage.getItem("adminUnlocked") === "true") {
+      lockScreen.style.display = "none";
+      loadVentes();
+    }
+
+    // 📊 Chargement des ventes par vendeur
+    async function loadVentes() {
+      const { data, error } = await supabase
+        .from("paiements_en_attente")
+        .select("*");
+
+      body.innerHTML = "";
+
+      if (error || !data?.length) {
+        body.innerHTML = "<tr><td colspan='4' class='note'>Aucune vente enregistrée.</td></tr>";
+        return;
+      }
+
+      // 🧮 Calcul des ventes par vendeur
+      const stats = {};
+      for (const row of data) {
+        const vendeur = row.paypal_email_vendeur || "Inconnu";
+        if (!stats[vendeur]) {
+          stats[vendeur] = { ventes: 0, total: 0, code: row.code_promo || "-" };
+        }
+        stats[vendeur].ventes += 1;
+        stats[vendeur].total += row.montant || 10;
+      }
+
+      // 🧱 Construction du tableau
+      for (const [vendeur, info] of Object.entries(stats)) {
+        const tr = document.createElement("tr");
+        const tdEmail = document.createElement("td"); tdEmail.textContent = vendeur;
+        const tdCode = document.createElement("td"); tdCode.textContent = info.code;
+        const tdVentes = document.createElement("td"); tdVentes.textContent = info.ventes;
+        const tdTotal = document.createElement("td"); tdTotal.textContent = info.total.toFixed(2) + " €";
+        tr.append(tdEmail, tdCode, tdVentes, tdTotal);
+        body.appendChild(tr);
+      }
+    }
+  </script>
+</body>
+</html>
