@@ -301,7 +301,7 @@
       }
 
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: window.location.origin + "/reset.html"
+        redirectTo: window.location.origin + "https://allergozymeprotect.com/reset.html"
       });
 
       if (error) {
