@@ -1,75 +1,121 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Réinitialisation du mot de passe — AllergoZyme Protect</title>
   <style>
     body {
-      background: #fffdf4;
-      font-family: 'Inter', Arial, sans-serif;
-      color: #3c2c0a;
+      margin: 0;
+      background: linear-gradient(180deg, #fffdf7, #f8f3d9);
+      font-family: 'Poppins', sans-serif;
+      color: #4a3a0a;
       text-align: center;
-      padding: 40px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
     }
     .card {
-      background: #fff;
-      border-radius: 14px;
-      border: 1px solid rgba(212,175,55,0.4);
-      max-width: 520px;
-      margin: 0 auto;
-      padding: 32px;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+      background: white;
+      border-radius: 22px;
+      border: 1px solid rgba(212,175,55,0.3);
+      padding: 45px 35px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+      max-width: 460px;
+      animation: fadeIn 0.7s ease;
+    }
+    img {
+      width: 90px;
+      margin-bottom: 20px;
     }
     h1 {
       color: #b4912e;
       font-size: 24px;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }
     p {
-      color: #6b5620;
+      color: #6e5b1b;
       font-size: 15px;
-      line-height: 1.6;
+      margin-bottom: 25px;
     }
-    .btn {
-      display: inline-block;
-      background: #d4af37;
-      color: white;
-      text-decoration: none;
-      padding: 12px 26px;
+    input {
+      width: 100%;
+      padding: 12px;
       border-radius: 999px;
-      margin-top: 22px;
-      font-weight: 600;
+      border: 1px solid rgba(212,175,55,0.4);
+      margin-bottom: 20px;
+      font-size: 15px;
+      outline: none;
+      text-align: center;
       transition: all 0.25s ease;
     }
-    .btn:hover {
-      background: #b4912e;
+    input:focus {
+      border-color: #b4912e;
+      box-shadow: 0 0 10px rgba(212,175,55,0.3);
+    }
+    button {
+      background: linear-gradient(135deg, #d4af37, #b4912e);
+      color: white;
+      border: none;
+      padding: 12px 28px;
+      border-radius: 999px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+    button:hover {
+      background: linear-gradient(135deg, #b4912e, #d4af37);
+      transform: translateY(-2px);
+    }
+    .success {
+      color: #b4912e;
+      font-weight: 600;
+      margin-top: 12px;
     }
     footer {
-      margin-top: 26px;
+      margin-top: 40px;
       font-size: 13px;
       color: #8c6f1f;
     }
-    img {
-      width: 90px;
-      margin-bottom: 10px;
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
 <body>
   <div class="card">
-    <img src="https://i.imgur.com/Li4jRGV.png" alt="Logo AllergoZyme Protect" />
-    <h1>Réinitialisation du mot de passe</h1>
-    <p>
-      Bonjour 👋<br>
-      Vous avez demandé à réinitialiser votre mot de passe sur <strong>AllergoZyme Protect</strong>.<br>
-      Cliquez sur le bouton ci-dessous pour définir un nouveau mot de passe sécurisé.
-    </p>
-
-    <a href="{{ .ConfirmationURL }}" class="btn">Réinitialiser mon mot de passe</a>
-
-    <footer>
-      © AllergoZyme Protect — Sécurité et confidentialité garanties.<br>
-      Support : <a href="mailto:allergozymepro@gmail.com">allergozymepro@gmail.com</a>
-    </footer>
+    <img src="logo.png" alt="AllergoZyme Logo" />
+    <h1>Réinitialisez votre mot de passe</h1>
+    <p>Définissez un nouveau mot de passe pour votre compte <strong>AllergoZyme Protect</strong>.</p>
+    <input type="password" id="newPassword" placeholder="Nouveau mot de passe" />
+    <button id="resetBtn">Mettre à jour</button>
+    <div id="message" class="success"></div>
   </div>
+
+  <footer>© AllergoZyme Protect — Données professionnelles et sécurisées.</footer>
+
+  <script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+    const supabase = createClient("https://tmrraeutjrcsozijjbzm.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtcnJhZXV0anJjc296aWpqYnptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA4MDA4NzIsImV4cCI6MjA3NjM3Njg3Mn0.015qUFsUyndsesz5RHGKWO1Ipoz7C3vcVZulACGmq0g");
+
+    document.getElementById("resetBtn").addEventListener("click", async () => {
+      const newPassword = document.getElementById("newPassword").value;
+      const { data, error } = await supabase.auth.updateUser({ password: newPassword });
+
+      const message = document.getElementById("message");
+      if (error) {
+        message.textContent = "❌ Erreur : " + error.message;
+      } else {
+        message.textContent = "✅ Mot de passe mis à jour avec succès !";
+        setTimeout(() => {
+          window.location.href = "login.html";
+        }, 3000);
+      }
+    });
+  </script>
 </body>
 </html>
