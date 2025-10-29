@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Réinitialisation du mot de passe — AllergoZyme Protect</title>
+  <link rel="icon" href="assets/logo.png" />
   <style>
     body {
       margin: 0;
@@ -88,7 +89,7 @@
 </head>
 <body>
   <div class="card">
-    <img src="logo.png" alt="AllergoZyme Logo" />
+    <img src="assets/logo.png" alt="AllergoZyme Logo" />
     <h1>Réinitialisez votre mot de passe</h1>
     <p>Définissez un nouveau mot de passe pour votre compte <strong>AllergoZyme Protect</strong>.</p>
     <input type="password" id="newPassword" placeholder="Nouveau mot de passe" />
@@ -100,22 +101,38 @@
 
   <script type="module">
     import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-    const supabase = createClient("https://tmrraeutjrcsozijjbzm.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtcnJhZXV0anJjc296aWpqYnptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA4MDA4NzIsImV4cCI6MjA3NjM3Njg3Mn0.015qUFsUyndsesz5RHGKWO1Ipoz7C3vcVZulACGmq0g");
 
-    document.getElementById("resetBtn").addEventListener("click", async () => {
-      const newPassword = document.getElementById("newPassword").value;
-      const { data, error } = await supabase.auth.updateUser({ password: newPassword });
+    // Connexion Supabase
+    const supabase = createClient(
+      "https://tmrraeutjrcsozijjbzm.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtcnJhZXV0anJjc296aWpqYnptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA4MDA4NzIsImV4cCI6MjA3NjM3Njg3Mn0.015qUFsUyndsesz5RHGKWO1Ipoz7C3vcVZulACGmq0g"
+    );
 
-      const message = document.getElementById("message");
+    const resetBtn = document.getElementById("resetBtn");
+    const message = document.getElementById("message");
+
+    resetBtn.addEventListener("click", async () => {
+      const newPassword = document.getElementById("newPassword").value.trim();
+      if (!newPassword) {
+        message.textContent = "❌ Veuillez entrer un nouveau mot de passe.";
+        return;
+      }
+
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+
       if (error) {
         message.textContent = "❌ Erreur : " + error.message;
       } else {
         message.textContent = "✅ Mot de passe mis à jour avec succès !";
         setTimeout(() => {
-          window.location.href = "login.html";
+          window.location.href = "identification.html";
         }, 3000);
       }
     });
+
+    // ✅ Correction : si le lien envoyé par e-mail redirige mal, Supabase doit pointer ici
+    // Tu dois t'assurer que le paramètre redirectTo dans le resetPasswordForEmail du projet Protect
+    // soit : https://allergozymeprotect.com/reset.html
   </script>
 </body>
 </html>
