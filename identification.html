@@ -5,230 +5,224 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Connexion — AllergoZymeProtect</title>
   <meta name="description" content="Connexion restaurateur AllergoZymeProtect — Accédez à votre espace sécurisé : QR codes, signatures clients, formation et label." />
+  <link rel="icon" href="logo.png" />
 
   <style>
     :root {
-      --gold:#c9a227;
-      --gold-strong:#b68f1e;
-      --gold-soft:#e8d598;
-      --white:#ffffff;
-      --gold-alpha-25:rgba(201,162,39,0.25);
-      --gold-alpha-45:rgba(201,162,39,0.45);
-      --gold-alpha-60:rgba(201,162,39,0.60);
+      --gold: #c9a227;
+      --gold-dark: #b68f1e;
+      --white: #ffffff;
+      --shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
     }
 
-    *{box-sizing:border-box;}
-    html,body{height:100%;}
-    body{
-      margin:0;
-      font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
-      background:radial-gradient(circle at 50% 20%, var(--gold-alpha-25), transparent 60%), var(--white);
-      color:var(--gold-strong);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:40px 20px;
+    * { box-sizing: border-box; font-family: "Poppins", system-ui, sans-serif; }
+
+    body {
+      margin: 0;
+      background: radial-gradient(circle at 50% 20%, rgba(201,162,39,0.15), transparent 70%), var(--white);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      color: var(--gold-dark);
     }
 
-    .card{
-      width:100%;
-      max-width:420px;
-      background:var(--white);
-      border:1px solid var(--gold-alpha-45);
-      border-radius:22px;
-      padding:32px 28px;
-      box-shadow:0 20px 60px var(--gold-alpha-25);
-      animation:fadeIn .8s ease both;
+    .card {
+      background: #fff;
+      border-radius: 22px;
+      border: 1px solid rgba(201,162,39,0.35);
+      box-shadow: var(--shadow);
+      width: 100%;
+      max-width: 420px;
+      padding: 38px 32px;
+      text-align: center;
+      animation: fadeIn 0.6s ease;
     }
 
     @keyframes fadeIn {
-      from{opacity:0; transform:translateY(12px);}
-      to{opacity:1; transform:translateY(0);}
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
-    h1{
-      text-align:center;
-      font-size:1.6rem;
-      margin-bottom:6px;
-      color:var(--gold-strong);
-      text-shadow:0 0 10px var(--gold-alpha-45);
+    h1 {
+      font-size: 1.6rem;
+      color: var(--gold-dark);
+      margin-bottom: 6px;
     }
 
-    p.subtitle{
-      text-align:center;
-      font-size:.95rem;
-      opacity:.9;
-      margin-top:0;
-      margin-bottom:26px;
+    p.subtitle {
+      font-size: .95rem;
+      color: #7c6a21;
+      margin-top: 0;
+      margin-bottom: 28px;
     }
 
-    form{display:grid; gap:16px;}
-    label{font-weight:600; font-size:.9rem;}
-
-    input{
-      width:100%;
-      padding:12px 14px;
-      border:1px solid var(--gold-alpha-45);
-      border-radius:12px;
-      font-size:1rem;
-      transition:border .2s ease, box-shadow .2s ease;
+    label {
+      text-align: left;
+      display: block;
+      font-weight: 600;
+      font-size: .9rem;
+      margin-bottom: 6px;
     }
 
-    input:focus{
-      outline:none;
-      border-color:var(--gold-strong);
-      box-shadow:0 0 8px var(--gold-alpha-25);
+    input {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(201,162,39,0.35);
+      font-size: 15px;
+      margin-bottom: 16px;
+      transition: border .2s ease, box-shadow .2s ease;
     }
 
-    button{
-      background:var(--gold-strong);
-      color:var(--white);
-      border:none;
-      padding:14px;
-      border-radius:999px;
-      font-weight:700;
-      letter-spacing:.03em;
-      cursor:pointer;
-      transition:transform .2s ease, box-shadow .2s ease;
+    input:focus {
+      border-color: var(--gold-dark);
+      box-shadow: 0 0 8px rgba(201,162,39,0.25);
+      outline: none;
     }
 
-    button:hover{
-      transform:translateY(-2px);
-      box-shadow:0 8px 20px var(--gold-alpha-45);
+    button {
+      width: 100%;
+      background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+      color: white;
+      border: none;
+      border-radius: 999px;
+      padding: 13px;
+      font-weight: 600;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all .25s ease;
+      box-shadow: 0 5px 15px rgba(201,162,39,0.25);
     }
 
-    .foot{
-      text-align:center;
-      margin-top:18px;
-      font-size:.9rem;
+    button:hover {
+      background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+      transform: translateY(-2px);
     }
 
-    .foot a{
-      color:var(--gold-strong);
-      text-decoration:none;
-      font-weight:600;
+    .forgot {
+      text-align: right;
+      margin-top: -8px;
+      margin-bottom: 14px;
     }
 
-    .foot a:hover{text-decoration:underline;}
-
-    .forgot{
-      text-align:right;
-      margin-top:-10px;
-      margin-bottom:8px;
+    .forgot a {
+      font-size: .85rem;
+      color: var(--gold-dark);
+      text-decoration: none;
+      font-weight: 600;
     }
 
-    .forgot a{
-      font-size:.85rem;
-      color:var(--gold-strong);
-      text-decoration:none;
-      font-weight:600;
+    .forgot a:hover { text-decoration: underline; }
+
+    .foot {
+      text-align: center;
+      margin-top: 18px;
+      font-size: .9rem;
     }
 
-    .forgot a:hover{text-decoration:underline;}
-
-    .glow { animation: pulse 3s ease-in-out infinite; }
-    @keyframes pulse {
-      0%,100% { text-shadow: 0 0 8px var(--gold-alpha-45); }
-      50% { text-shadow: 0 0 20px var(--gold-soft); }
+    .foot a {
+      color: var(--gold-dark);
+      text-decoration: none;
+      font-weight: 600;
     }
+
+    .foot a:hover { text-decoration: underline; }
 
     /* Popup */
-    .popup-backdrop{
-      position:fixed;
-      inset:0;
-      background:rgba(0,0,0,0.45);
-      display:none;
-      align-items:center;
-      justify-content:center;
-      backdrop-filter:blur(4px);
-      z-index:50;
+    .popup-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(4px);
+      z-index: 100;
     }
 
-    .popup{
-      background:#fff;
-      border-radius:18px;
-      border:1px solid var(--gold-alpha-45);
-      box-shadow:0 10px 40px rgba(0,0,0,0.15);
-      max-width:360px;
-      width:90%;
-      padding:28px;
-      text-align:center;
-      animation:fadeIn .4s ease;
+    .popup {
+      background: #fff;
+      border-radius: 18px;
+      border: 1px solid rgba(201,162,39,0.35);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.12);
+      max-width: 360px;
+      width: 90%;
+      padding: 28px;
+      text-align: center;
+      animation: fadeIn .4s ease;
     }
 
-    .popup img{
-      width:60px;
-      margin-bottom:10px;
+    .popup img {
+      width: 65px;
+      margin-bottom: 10px;
     }
 
-    .popup h2{
-      font-size:1.2rem;
-      color:var(--gold-strong);
-      margin-bottom:8px;
+    .popup h2 {
+      color: var(--gold-dark);
+      font-size: 1.2rem;
+      margin-bottom: 10px;
     }
 
-    .popup p{
-      font-size:.9rem;
-      color:#7a6820;
-      margin-bottom:14px;
+    .popup p {
+      color: #7c6a21;
+      font-size: .9rem;
+      margin-bottom: 12px;
     }
 
-    .popup input{
-      width:100%;
-      padding:12px;
-      border:1px solid var(--gold-alpha-45);
-      border-radius:8px;
-      text-align:center;
-      margin-bottom:12px;
-      font-size:.95rem;
+    .popup input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid rgba(201,162,39,0.35);
+      border-radius: 8px;
+      text-align: center;
+      margin-bottom: 12px;
+      font-size: .95rem;
     }
 
-    .popup button{
-      background:linear-gradient(135deg, var(--gold), var(--gold-strong));
-      color:#fff;
-      border:none;
-      border-radius:999px;
-      padding:10px 24px;
-      font-weight:600;
-      cursor:pointer;
-      transition:all .2s ease;
+    .popup button {
+      background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+      color: white;
+      border: none;
+      border-radius: 999px;
+      padding: 10px 24px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .2s ease;
     }
 
-    .popup button:hover{background:linear-gradient(135deg, var(--gold-strong), var(--gold));}
+    .popup button:hover { background: linear-gradient(135deg, var(--gold-dark), var(--gold)); }
 
-    .popup .close{
-      background:none;
-      border:none;
-      color:#7a6820;
-      font-size:.8rem;
-      margin-top:8px;
-      cursor:pointer;
+    .popup .close {
+      background: none;
+      border: none;
+      color: #7a6820;
+      font-size: .8rem;
+      margin-top: 8px;
+      cursor: pointer;
     }
 
-    .msg{
-      font-size:.85rem;
-      margin-top:6px;
-      display:none;
+    .msg {
+      font-size: .9rem;
+      margin-top: 10px;
+      display: none;
     }
 
-    .msg.success{color:#2e7d32; display:block;}
-    .msg.error{color:#8c1b1b; display:block;}
+    .msg.success { color: #2e7d32; display: block; }
+    .msg.error { color: #a32222; display: block; }
   </style>
 </head>
 <body>
   <div class="card">
-    <h1 class="glow">AllergoZymeProtect</h1>
-    <p class="subtitle">Connexion à votre espace sécurisé</p>
+    <h1>AllergoZymeProtect</h1>
+    <p class="subtitle">Connexion à votre espace restaurateur</p>
 
     <form id="loginForm">
-      <div>
-        <label for="email">Adresse e-mail</label>
-        <input type="email" id="email" required />
-      </div>
-      <div>
-        <label for="password">Mot de passe</label>
-        <input type="password" id="password" required />
-      </div>
+      <label for="email">Adresse e-mail</label>
+      <input type="email" id="email" required />
+
+      <label for="password">Mot de passe</label>
+      <input type="password" id="password" required />
 
       <div class="forgot">
         <a href="#" id="forgotLink">Mot de passe oublié ?</a>
@@ -245,11 +239,11 @@
   <!-- Popup -->
   <div class="popup-backdrop" id="popup">
     <div class="popup">
-      <img src="assets/logo.png" alt="Logo AllergoZyme" />
-      <h2>Réinitialisation</h2>
-      <p>Entrez votre adresse e-mail pour recevoir le lien.</p>
+      <img src="logo.png" alt="AllergoZyme Logo" />
+      <h2>Réinitialiser le mot de passe</h2>
+      <p>Entrez votre e-mail pour recevoir le lien de réinitialisation.</p>
       <input type="email" id="resetEmail" placeholder="exemple@email.com" />
-      <button id="resetBtn">Valider</button>
+      <button id="resetBtn">Envoyer</button>
       <button class="close" id="closePopup">Annuler</button>
       <div id="resetMsg" class="msg"></div>
     </div>
@@ -275,9 +269,9 @@
     loginForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value;
+      const password = document.getElementById("password").value.trim();
 
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
         alert("❌ " + error.message);
       } else {
@@ -285,7 +279,7 @@
       }
     });
 
-    // Ouvrir popup
+    // Ouvrir la popup
     forgotLink.addEventListener("click", (e) => {
       e.preventDefault();
       popup.style.display = "flex";
@@ -293,30 +287,32 @@
       resetMsg.style.display = "none";
     });
 
-    // Fermer popup
+    // Fermer la popup
     closePopup.addEventListener("click", () => (popup.style.display = "none"));
     popup.addEventListener("click", (e) => { if (e.target === popup) popup.style.display = "none"; });
 
-    // Envoi lien reset
+    // Envoi du lien de réinitialisation
     resetBtn.addEventListener("click", async () => {
       const email = resetEmail.value.trim();
       if (!email) {
-        resetMsg.textContent = "Veuillez renseigner votre e-mail.";
+        resetMsg.textContent = "Veuillez renseigner votre adresse e-mail.";
         resetMsg.className = "msg error";
         return;
       }
 
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: window.location.origin + "/reset.html",
+        redirectTo: window.location.origin + "/reset.html"
       });
 
       if (error) {
         resetMsg.textContent = "❌ " + error.message;
         resetMsg.className = "msg error";
       } else {
-        resetMsg.textContent = "✅ Lien envoyé ! Vérifiez votre boîte mail.";
+        resetMsg.textContent = "✅ Vous avez reçu un e-mail pour réinitialiser votre mot de passe.";
         resetMsg.className = "msg success";
-        setTimeout(() => (popup.style.display = "none"), 2500);
+        setTimeout(() => {
+          popup.style.display = "none";
+        }, 3000);
       }
     });
   </script>
