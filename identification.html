@@ -22,13 +22,12 @@
     body{
       margin:0;
       font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
-      background:var(--white);
+      background:radial-gradient(circle at 50% 20%, var(--gold-alpha-25), transparent 60%), var(--white);
       color:var(--gold-strong);
       display:flex;
       align-items:center;
       justify-content:center;
       padding:40px 20px;
-      background:radial-gradient(circle at 50% 20%, var(--gold-alpha-25), transparent 60%), var(--white);
     }
 
     .card{
@@ -49,8 +48,8 @@
 
     h1{
       text-align:center;
-      font-size:1.5rem;
-      margin-bottom:4px;
+      font-size:1.6rem;
+      margin-bottom:6px;
       color:var(--gold-strong);
       text-shadow:0 0 10px var(--gold-alpha-45);
     }
@@ -63,15 +62,8 @@
       margin-bottom:26px;
     }
 
-    form{
-      display:grid;
-      gap:16px;
-    }
-
-    label{
-      font-weight:600;
-      font-size:.9rem;
-    }
+    form{display:grid; gap:16px;}
+    label{font-weight:600; font-size:.9rem;}
 
     input{
       width:100%;
@@ -117,9 +109,7 @@
       font-weight:600;
     }
 
-    .foot a:hover{
-      text-decoration:underline;
-    }
+    .foot a:hover{text-decoration:underline;}
 
     .forgot{
       text-align:right;
@@ -134,37 +124,114 @@
       font-weight:600;
     }
 
-    .forgot a:hover{
-      text-decoration:underline;
-    }
+    .forgot a:hover{text-decoration:underline;}
 
-    .glow {
-      animation: pulse 3s ease-in-out infinite;
-    }
+    .glow { animation: pulse 3s ease-in-out infinite; }
     @keyframes pulse {
       0%,100% { text-shadow: 0 0 8px var(--gold-alpha-45); }
       50% { text-shadow: 0 0 20px var(--gold-soft); }
     }
+
+    /* Popup */
+    .popup-backdrop{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,0.45);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      backdrop-filter:blur(4px);
+      z-index:50;
+    }
+
+    .popup{
+      background:#fff;
+      border-radius:18px;
+      border:1px solid var(--gold-alpha-45);
+      box-shadow:0 10px 40px rgba(0,0,0,0.15);
+      max-width:360px;
+      width:90%;
+      padding:28px;
+      text-align:center;
+      animation:fadeIn .4s ease;
+    }
+
+    .popup img{
+      width:60px;
+      margin-bottom:10px;
+    }
+
+    .popup h2{
+      font-size:1.2rem;
+      color:var(--gold-strong);
+      margin-bottom:8px;
+    }
+
+    .popup p{
+      font-size:.9rem;
+      color:#7a6820;
+      margin-bottom:14px;
+    }
+
+    .popup input{
+      width:100%;
+      padding:12px;
+      border:1px solid var(--gold-alpha-45);
+      border-radius:8px;
+      text-align:center;
+      margin-bottom:12px;
+      font-size:.95rem;
+    }
+
+    .popup button{
+      background:linear-gradient(135deg, var(--gold), var(--gold-strong));
+      color:#fff;
+      border:none;
+      border-radius:999px;
+      padding:10px 24px;
+      font-weight:600;
+      cursor:pointer;
+      transition:all .2s ease;
+    }
+
+    .popup button:hover{background:linear-gradient(135deg, var(--gold-strong), var(--gold));}
+
+    .popup .close{
+      background:none;
+      border:none;
+      color:#7a6820;
+      font-size:.8rem;
+      margin-top:8px;
+      cursor:pointer;
+    }
+
+    .msg{
+      font-size:.85rem;
+      margin-top:6px;
+      display:none;
+    }
+
+    .msg.success{color:#2e7d32; display:block;}
+    .msg.error{color:#8c1b1b; display:block;}
   </style>
 </head>
 <body>
-  <div class="card halo">
+  <div class="card">
     <h1 class="glow">AllergoZymeProtect</h1>
     <p class="subtitle">Connexion à votre espace sécurisé</p>
 
-    <form id="login-form">
+    <form id="loginForm">
       <div>
         <label for="email">Adresse e-mail</label>
-        <input type="email" id="email" name="email" required />
+        <input type="email" id="email" required />
       </div>
-
       <div>
         <label for="password">Mot de passe</label>
-        <input type="password" id="password" name="password" required />
+        <input type="password" id="password" required />
       </div>
 
       <div class="forgot">
-        <a href="#" id="forgot-password">Mot de passe oublié ?</a>
+        <a href="#" id="forgotLink">Mot de passe oublié ?</a>
       </div>
 
       <button type="submit">Se connecter</button>
@@ -175,45 +242,81 @@
     </div>
   </div>
 
+  <!-- Popup -->
+  <div class="popup-backdrop" id="popup">
+    <div class="popup">
+      <img src="assets/logo.png" alt="Logo AllergoZyme" />
+      <h2>Réinitialisation</h2>
+      <p>Entrez votre adresse e-mail pour recevoir le lien.</p>
+      <input type="email" id="resetEmail" placeholder="exemple@email.com" />
+      <button id="resetBtn">Valider</button>
+      <button class="close" id="closePopup">Annuler</button>
+      <div id="resetMsg" class="msg"></div>
+    </div>
+  </div>
+
   <script type="module">
     import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
-    // ⚙️ Remplace avec tes identifiants Supabase
-    const SUPABASE_URL = "https://tmrraeutjrcsozijjbzm.supabase.co";
-    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtcnJhZXV0anJjc296aWpqYnptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA4MDA4NzIsImV4cCI6MjA3NjM3Njg3Mn0.015qUFsUyndsesz5RHGKWO1Ipoz7C3vcVZulACGmq0g";
-    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+    const supabase = createClient(
+      "https://tmrraeutjrcsozijjbzm.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtcnJhZXV0anJjc296aWpqYnptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA4MDA4NzIsImV4cCI6MjA3NjM3Njg3Mn0.015qUFsUyndsesz5RHGKWO1Ipoz7C3vcVZulACGmq0g"
+    );
 
-    // Connexion normale
-    const form = document.getElementById("login-form");
-    form.addEventListener("submit", async (e) => {
+    const loginForm = document.getElementById("loginForm");
+    const popup = document.getElementById("popup");
+    const forgotLink = document.getElementById("forgotLink");
+    const closePopup = document.getElementById("closePopup");
+    const resetBtn = document.getElementById("resetBtn");
+    const resetEmail = document.getElementById("resetEmail");
+    const resetMsg = document.getElementById("resetMsg");
+
+    // Connexion
+    loginForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const email = form.email.value.trim();
-      const password = form.password.value.trim();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
 
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
-        alert("Erreur : " + error.message);
+        alert("❌ " + error.message);
       } else {
-        alert("Connexion réussie !");
         window.location.href = "dashboard.html";
       }
     });
 
-    // 🔑 Mot de passe oublié
-    const forgot = document.getElementById("forgot-password");
-    forgot.addEventListener("click", async (e) => {
+    // Ouvrir popup
+    forgotLink.addEventListener("click", (e) => {
       e.preventDefault();
-      const email = prompt("Entrez votre adresse e-mail pour réinitialiser votre mot de passe :");
-      if (!email) return;
+      popup.style.display = "flex";
+      resetEmail.value = "";
+      resetMsg.style.display = "none";
+    });
+
+    // Fermer popup
+    closePopup.addEventListener("click", () => (popup.style.display = "none"));
+    popup.addEventListener("click", (e) => { if (e.target === popup) popup.style.display = "none"; });
+
+    // Envoi lien reset
+    resetBtn.addEventListener("click", async () => {
+      const email = resetEmail.value.trim();
+      if (!email) {
+        resetMsg.textContent = "Veuillez renseigner votre e-mail.";
+        resetMsg.className = "msg error";
+        return;
+      }
 
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: window.location.origin + "/reset.html"
+        redirectTo: window.location.origin + "/reset.html",
       });
 
       if (error) {
-        alert("Erreur : " + error.message);
+        resetMsg.textContent = "❌ " + error.message;
+        resetMsg.className = "msg error";
       } else {
-        alert("Un e-mail de réinitialisation vient de vous être envoyé !");
+        resetMsg.textContent = "✅ Lien envoyé ! Vérifiez votre boîte mail.";
+        resetMsg.className = "msg success";
+        setTimeout(() => (popup.style.display = "none"), 2500);
       }
     });
   </script>
