@@ -82,8 +82,7 @@ document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
   }
 })();
 
-// --- 6) Compteur de signatures (lecture simple Supabase; pas d’écriture)
-//      • Robuste : relance à la reconnexion réseau & quand l’onglet redevient visible
+// --- 6) Compteur de signatures (avec OFFSET)
 async function updateSignatureCount() {
   const el = document.getElementById("signatureCount");
   if (!el) return;
@@ -91,13 +90,27 @@ async function updateSignatureCount() {
     const { count, error } = await supabase
       .from("signatures")
       .select("*", { count: "exact", head: true });
+
     if (error) throw error;
-    el.textContent = typeof count === "number" ? count : 0;
+
+    // ✅ OFFSET APPLIQUÉ
+    el.textContent = (18446 + (count || 0)).toLocaleString('fr-FR');
+
   } catch (err) {
     console.warn("Compteur de signatures indisponible :", err?.message || err);
     el.textContent = "—";
   }
 }
+
+if (document.getElementById("signatureCount")) {
+  updateSignatureCount();
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) updateSignatureCount();
+  }, { passive: true });
+  window.addEventListener("online", updateSignatureCount, { passive: true });
+}
+
+
 
 if (document.getElementById("signatureCount")) {
   updateSignatureCount();
