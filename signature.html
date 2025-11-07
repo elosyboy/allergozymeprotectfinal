@@ -8,130 +8,36 @@
 
   <style>
     :root {
-      --gold: #c9a227;
-      --gold-strong: #b68f1e;
-      --white: #ffffff;
-      --gold-alpha-25: rgba(201,162,39,0.25);
-      --gold-alpha-45: rgba(201,162,39,0.45);
-      --gold-alpha-70: rgba(201,162,39,0.70);
+      --gold:#c9a227; --gold-strong:#b68f1e; --white:#ffffff;
+      --gold-alpha-25:rgba(201,162,39,0.25); --gold-alpha-45:rgba(201,162,39,0.45);
     }
-
-    * { box-sizing: border-box; }
-    html, body {
-      margin: 0; height: 100%;
-      font-family: 'Segoe UI', sans-serif;
-      background: var(--white);
-      color: var(--gold-strong);
-    }
-
-    .container {
-      max-width: 950px;
-      margin: 40px auto;
-      padding: 32px;
-      border-radius: 24px;
-      border: 1px solid var(--gold-alpha-45);
-      box-shadow: 0 20px 60px var(--gold-alpha-25);
-      background: radial-gradient(circle at 50% 20%, var(--gold-alpha-25), transparent 60%), var(--white);
-      animation: fadeIn 1s ease both;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(15px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    header { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 20px; }
-    header img { width: 52px; height: 52px; }
-    h1 { font-size: 1.8rem; margin: 0; text-align: center; text-shadow: 0 0 12px var(--gold-alpha-45); }
-
-    .text {
-      background: linear-gradient(180deg, var(--white), #fffdf5);
-      border-radius: 14px;
-      border: 1px solid var(--gold-alpha-25);
-      box-shadow: 0 0 25px rgba(201,162,39,0.08);
-      padding: 22px;
-      font-size: 0.97rem;
-      color: #704f0b;
-      text-align: justify;
-      line-height: 1.7;
-      margin-bottom: 24px;
-    }
-
-    form { display: grid; gap: 16px; margin-top: 10px; }
-    label { font-weight: 600; }
-
-    input[type="text"], input[type="email"], input[type="password"], input[type="tel"], select, textarea {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid var(--gold-alpha-45);
-      border-radius: 12px;
-      font-size: 1rem;
-      transition: all .2s ease;
-    }
-
-    input:focus, textarea:focus, select:focus {
-      outline: none;
-      border-color: var(--gold-strong);
-      box-shadow: 0 0 10px var(--gold-alpha-25);
-    }
-
-    button {
-      background: var(--gold-strong);
-      color: var(--white);
-      border: none;
-      padding: 14px;
-      border-radius: 999px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all .3s ease;
-    }
-
-    button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 20px var(--gold-alpha-45);
-    }
-
-    .section-title {
-      margin-top: 24px;
-      text-align: center;
-      font-size: 1.2rem;
-      font-weight: 700;
-      text-shadow: 0 0 10px var(--gold-alpha-45);
-    }
-
-    .allergens {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 10px;
-      margin-top: 10px;
-    }
-
-    .allergen-item {
-      display: flex; align-items: center; gap: 8px;
-      padding: 8px 10px;
-      border: 1px solid var(--gold-alpha-25);
-      border-radius: 10px;
-      background: rgba(255,255,255,0.9);
-    }
-
-    .success {
-      margin-top: 20px;
-      text-align: center;
-      background: rgba(201,162,39,0.1);
-      border: 1px solid var(--gold-alpha-45);
-      padding: 14px;
-      border-radius: 12px;
-      font-weight: 600;
-      display: none;
-    }
-
-    footer {
-      text-align: center;
-      margin-top: 40px;
-      font-size: 0.85rem;
-      opacity: 0.7;
-      line-height: 1.5;
-    }
+    *{box-sizing:border-box}
+    html,body{margin:0;height:100%;font-family:'Segoe UI',system-ui,Arial;background:var(--white);color:var(--gold-strong)}
+    .container{max-width:950px;margin:40px auto;padding:32px;border-radius:24px;border:1px solid var(--gold-alpha-45);
+      box-shadow:0 20px 60px rgba(201,162,39,0.25);
+      background:radial-gradient(circle at 50% 20%, rgba(201,162,39,0.12), transparent 60%), var(--white);
+      animation:fadeIn 0.6s ease both}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    header{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:20px}
+    header img{width:52px;height:52px}
+    h1{font-size:1.8rem;margin:0;text-align:center;text-shadow:0 0 12px rgba(201,162,39,0.45)}
+    .text{background:linear-gradient(180deg,#fff,#fffdf5);border-radius:14px;border:1px solid var(--gold-alpha-25);
+      box-shadow:0 0 25px rgba(201,162,39,0.08);padding:22px;font-size:.97rem;color:#704f0b;text-align:justify;line-height:1.7;margin-bottom:24px}
+    form{display:grid;gap:16px;margin-top:10px}
+    label{font-weight:600}
+    input[type="text"],input[type="email"],input[type="password"],input[type="tel"],select,textarea{
+      width:100%;padding:12px;border:1px solid var(--gold-alpha-45);border-radius:12px;font-size:1rem;transition:all .2s ease}
+    input:focus,textarea:focus,select:focus{outline:none;border-color:var(--gold-strong);box-shadow:0 0 10px rgba(201,162,39,0.25)}
+    button{background:var(--gold-strong);color:#fff;border:none;padding:14px;border-radius:999px;font-weight:700;cursor:pointer;transition:all .2s ease}
+    button:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(201,162,39,0.45)}
+    .section-title{margin-top:24px;text-align:center;font-size:1.2rem;font-weight:700;text-shadow:0 0 10px rgba(201,162,39,0.45)}
+    .allergens{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-top:10px}
+    .allergen-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--gold-alpha-25);border-radius:10px;background:rgba(255,255,255,0.9)}
+    .success{margin-top:20px;text-align:center;background:rgba(201,162,39,0.1);border:1px solid var(--gold-alpha-45);padding:14px;border-radius:12px;font-weight:600;display:none}
+    .error{margin-top:8px;color:#b00020;font-weight:700}
+    .hint{font-size:.9rem;opacity:.8}
+    footer{text-align:center;margin-top:40px;font-size:.85rem;opacity:.7;line-height:1.5}
+    .pill{display:inline-block;border:1px solid var(--gold-alpha-45);border-radius:999px;padding:2px 8px;font-size:.8rem;margin-left:6px}
   </style>
 </head>
 
@@ -144,28 +50,29 @@
 
     <div class="text">
       <p><strong>Déclaration officielle et signalement des allergies, intolérances et risques liés au diabète.</strong></p>
-      <p>
-        Ce formulaire vous permet d’enregistrer votre consentement numérique et vos informations de santé sensibles
-        (allergies, intolérances, diabète) pour que l’établissement puisse garantir votre sécurité alimentaire.
+      <p>Remplissez ce formulaire pour que l’établissement garantisse votre sécurité alimentaire. Vous pouvez vous connecter avec votre compte <em>AllergoZyme Passport</em> (facultatif) pour pré-remplir vos infos.</p>
+      <p class="hint">
+        QR relié à l’établissement :
+        <span id="qr-info" class="pill">Vérification…</span>
       </p>
+      <div id="qr-error" class="error" style="display:none"></div>
     </div>
 
     <!-- Identification AllergoZyme Passport -->
     <section>
-      <h2 class="section-title">Identification AllergoZyme Passport</h2>
-      <p style="text-align:center">Vous avez déjà un compte Passport ? Connectez-vous pour charger vos informations automatiquement :</p>
+      <h2 class="section-title">Identification AllergoZyme Passport (optionnel)</h2>
+      <p style="text-align:center">Déjà un compte Passport ? Connectez-vous pour charger vos informations automatiquement :</p>
 
-      <form id="login-form">
+      <form id="login-form" autocomplete="on">
         <input type="email" id="login-email" placeholder="Email Passport" required>
         <input type="password" id="login-password" placeholder="Mot de passe" required>
         <button type="submit">S’identifier</button>
       </form>
-
       <div id="login-status" style="text-align:center;margin-top:10px;font-weight:600;"></div>
     </section>
 
     <!-- Formulaire principal -->
-    <form id="signature-form">
+    <form id="signature-form" autocomplete="on">
       <label for="nom">Nom et prénom</label>
       <input type="text" id="nom" name="nom" placeholder="Votre nom complet" required>
 
@@ -173,7 +80,7 @@
       <input type="text" id="contact" name="contact" placeholder="E-mail ou téléphone" required>
 
       <h2 class="section-title">Sélectionnez vos allergènes / intolérances</h2>
-      <div class="allergens">
+      <div class="allergens" id="allergen-grid">
         <label class="allergen-item"><input type="checkbox" value="Gluten"> Gluten</label>
         <label class="allergen-item"><input type="checkbox" value="Crustacés"> Crustacés</label>
         <label class="allergen-item"><input type="checkbox" value="Oeufs"> Œufs</label>
@@ -188,10 +95,10 @@
         <label class="allergen-item"><input type="checkbox" value="Anhydride sulfureux"> Sulfites</label>
         <label class="allergen-item"><input type="checkbox" value="Lupin"> Lupin</label>
         <label class="allergen-item"><input type="checkbox" value="Mollusques"> Mollusques</label>
-        <label class="allergen-item"><input type="checkbox" value="Diabète"> Diabète</label>
+        <label class="allergen-item"><input type="checkbox" value="Diabète" data-diabetes> Diabète</label>
       </div>
 
-      <label for="autres">Autres allergies ou intolérances (ex: lactose, histamine...)</label>
+      <label for="autres">Autres allergies ou intolérances (ex : lactose, histamine...)</label>
       <textarea id="autres" rows="3" placeholder="Indiquez ici d’autres sensibilités ou intolérances..."></textarea>
 
       <label><input type="checkbox" id="noAllergy"> Je n’ai pas d’allergène connu</label>
@@ -199,94 +106,176 @@
       <label><input type="checkbox" id="consent" required> J’ai lu et j’accepte l’ensemble des informations ci-dessus.</label>
 
       <button type="submit">Valider et signer</button>
+      <div id="submit-error" class="error" style="display:none"></div>
     </form>
 
     <div class="success" id="success-message">
-      ✅ Vos informations allergiques ont été enregistrées.<br>
-      Elles ont été transmises au restaurateur et horodatées dans le registre sécurisé AllergoZymeProtect.<br>
-      Merci de votre confiance.
+      ✅ Vos informations ont été enregistrées et transmises au restaurateur. Redirection…
     </div>
   </div>
 
   <footer>
-    © AllergoZymeProtect / Passport — Consentement & Allergies.<br>
+    © AllergoZymeProtect / Passport — Consentement & Allergies.<br />
     Données chiffrées, hébergées dans l’UE. Conservation : 30 jours ou selon compte Passport.
   </footer>
 
   <script type="module">
     import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
-    const SUPABASE_URL = "https://tmrraeutjrcsozijjbzm.supabase.co";
-    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtcnJhZXV0anJjc296aWpqYnptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA4MDA4NzIsImV4cCI6MjA3NjM3Njg3Mn0.015qUFsUyndsesz5RHGKWO1Ipoz7C3vcVZulACGmq0g";
-    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+    // ---------- SUPABASE ----------
+    const supabase = createClient(
+      "https://tmrraeutjrcsozijjbzm.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtcnJhZXV0anJjc296aWpqYnptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA4MDA4NzIsImV4cCI6MjA3NjM3Njg3Mn0.015qUFsUyndsesz5RHGKWO1Ipoz7C3vcVZulACGmq0g"
+    );
 
-    const loginForm = document.getElementById("login-form");
-    const loginStatus = document.getElementById("login-status");
-    const form = document.getElementById("signature-form");
-    const successMessage = document.getElementById("success-message");
-
+    // ---------- PARAMS ----------
     const params = new URLSearchParams(window.location.search);
     const restaurantId = params.get("restaurant");
     const table = params.get("table") || "Général";
 
-    // --- 1. Connexion Passport
+    // ---------- UI refs ----------
+    const loginForm = document.getElementById("login-form");
+    const loginStatus = document.getElementById("login-status");
+    const form = document.getElementById("signature-form");
+    const successMessage = document.getElementById("success-message");
+    const submitError = document.getElementById("submit-error");
+    const qrInfo = document.getElementById("qr-info");
+    const qrError = document.getElementById("qr-error");
+
+    // ---------- Helpers ----------
+    const isUUID = (v)=> /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(v||"");
+    const setQRBadge = (text, ok=true)=>{
+      qrInfo.textContent = text;
+      qrInfo.style.borderColor = ok ? "rgba(201,162,39,0.45)" : "#b00020";
+      qrInfo.style.color = ok ? "#6f540f" : "#b00020";
+    };
+
+    // Affiche état du QR (vendeur/restaurant)
+    if (restaurantId && isUUID(restaurantId)) {
+      setQRBadge("Établissement relié ✅");
+    } else if (restaurantId) {
+      setQRBadge("QR démo / non relié", false);
+      qrError.style.display = "block";
+      qrError.textContent = "Avertissement : identifiant de restaurant invalide. La signature sera enregistrée mais non rattachée.";
+    } else {
+      setQRBadge("QR sans identifiant", false);
+      qrError.style.display = "block";
+      qrError.textContent = "Avertissement : ce lien n’indique pas l’établissement. La signature sera enregistrée sans rattachement.";
+    }
+
+    // Quand “Aucun allergène” est coché, on décoche les autres (sauf diabète)
+    const noAllergy = document.getElementById("noAllergy");
+    const allergenGrid = document.getElementById("allergen-grid");
+    noAllergy.addEventListener("change",()=>{
+      if(noAllergy.checked){
+        allergenGrid.querySelectorAll('input[type="checkbox"]:not([data-diabetes])').forEach(cb=> cb.checked = false);
+      }
+    });
+    allergenGrid.addEventListener("change",(e)=>{
+      if(e.target.type === "checkbox" && !e.target.hasAttribute("data-diabetes") && e.target.checked){
+        noAllergy.checked = false;
+      }
+    });
+
+    // ---------- LOGIN PASSPORT (optionnel) ----------
     loginForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const email = document.getElementById("login-email").value;
+      loginStatus.textContent = "Connexion…";
+      loginStatus.style.color = "#6f540f";
+
+      const email = document.getElementById("login-email").value.trim();
       const password = document.getElementById("login-password").value;
+
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
       if (error) {
         loginStatus.style.color = "red";
         loginStatus.textContent = "Erreur d’identification.";
-      } else {
-        loginStatus.style.color = "green";
-        loginStatus.textContent = "Connecté — vos informations allergiques seront synchronisées.";
-        const user = data.user;
-        const { data: profil } = await supabase.from("profiles").select("*").eq("id", user.id).single();
-
-        if (profil) {
-          document.getElementById("nom").value = profil.nom || "";
-          document.getElementById("contact").value = user.email || "";
-          document.getElementById("autres").value = profil.autres_allergenes || "";
-          if (profil.allergenes) {
-            profil.allergenes.split(",").forEach(a => {
-              document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
-                if (cb.value === a.trim()) cb.checked = true;
-              });
-            });
-          }
-        }
+        return;
       }
+
+      // Pré-remplissage depuis la table passports (par contact = email)
+      try {
+        const { data: pass } = await supabase
+          .from("passports")
+          .select("contact, allergenes, autres_allergenes, diabete, nom")
+          .eq("contact", email)
+          .maybeSingle();
+
+        if (pass) {
+          document.getElementById("nom").value = pass.nom || "";
+          document.getElementById("contact").value = pass.contact || email;
+          document.getElementById("autres").value = pass.autres_allergenes || "";
+
+          // coches
+          const mapVals = (pass.allergenes||"").split(",").map(s=>s.trim()).filter(Boolean);
+          allergenGrid.querySelectorAll('input[type="checkbox"]').forEach(cb=>{
+            cb.checked = mapVals.includes(cb.value);
+          });
+          // diabète bool
+          const diabCb = allergenGrid.querySelector('input[data-diabetes]');
+          if (diabCb) diabCb.checked = !!pass.diabete;
+        }
+      } catch(e) {
+        // silencieux
+      }
+
+      loginStatus.style.color = "green";
+      loginStatus.textContent = "Connecté — infos synchronisées.";
     });
 
-    // --- 2. Envoi du consentement complet
+    // ---------- INSERT SIGNATURE ----------
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
+      submitError.style.display = "none";
+      successMessage.style.display = "none";
 
       const nom = form.nom.value.trim();
       const contact = form.contact.value.trim();
       const autres = document.getElementById("autres").value.trim();
-      const allergenes = Array.from(document.querySelectorAll('.allergen-item input:checked')).map(cb => cb.value);
-      const noAllergy = document.getElementById("noAllergy").checked;
+      const checked = Array.from(document.querySelectorAll('.allergen-item input:checked'));
+      const allergenesList = checked.filter(cb=>!cb.hasAttribute('data-diabetes')).map(cb=>cb.value);
+      const diabetesChecked = checked.some(cb=> cb.hasAttribute('data-diabetes'));
+      const noAllergyChecked = document.getElementById("noAllergy").checked;
 
-      const { data, error } = await supabase.from("signatures").insert([
-        {
-          restaurant_id: restaurantId,
-          table_ref: table,
-          nom_client: nom,
-          emailnumero_client: contact,
-          allergenes: noAllergy ? "Aucun" : allergenes.join(", "),
-          autres_allergenes: autres,
-          consentement: true
+      const payload = {
+        restaurant_id:restaurantId,
+        table_ref: table,
+        nom_client: nom,
+        emailnumero_client: contact,
+        allergenes: noAllergyChecked ? "Aucun" : allergenesList.join(", "),
+        autres_allergenes: autres,
+        diabete: diabetesChecked,
+        consentement: true
+      };
+
+      try{
+        // on veut récupérer l'id inséré pour la redirection
+        const { data, error } = await supabase
+          .from("signatures")
+          .insert([payload])
+          .select("id")
+          .single();
+
+        if (error) {
+          submitError.style.display = "block";
+          submitError.textContent = "Erreur d’enregistrement : " + (error.message || "inconnue");
+          return;
         }
-      ]);
 
-      if (error) {
-        alert("Erreur lors de l’enregistrement : " + error.message);
-      } else {
-        form.style.display = "none";
         successMessage.style.display = "block";
+
+        // Redirection vers page de validation
+        const sid = data?.id || "";
+        const url = new URL("validesignature.html", window.location.origin);
+        url.searchParams.set("ok","1");
+        if (sid) url.searchParams.set("sid", sid);
+        if (restaurantId) url.searchParams.set("restaurant", restaurantId);
+        if (table) url.searchParams.set("table", table);
+        window.location.href = url.toString();
+      }catch(err){
+        submitError.style.display = "block";
+        submitError.textContent = "Erreur réseau ou navigateur. Veuillez réessayer.";
       }
     });
   </script>
