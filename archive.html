@@ -5,43 +5,103 @@
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>Archives — AllergoZymeProtect</title>
 <meta name="description" content="Archives intelligentes : jour/mois/année, recherche, filtres par statut, allergènes, diabète, export CSV, purge >30j.">
+
 <style>
   :root{
-    --gold:#d4af37; --gold-deep:#b68f1e; --white:#fff;
+    /* Palette noir / or (identique aux autres pages) */
+    --black:#0a0a0a; --black2:#0d0d0e; --black3:#131316; --black4:#0b0b0c;
+    --ink:#e7e7ea; --mute:#a8a8b6; --gold:#d4af37; --gold-deep:#b68f1e; --line:#202024;
+
+    /* Extras */
     --gold-10:rgba(212,175,55,.10); --gold-18:rgba(212,175,55,.18); --gold-25:rgba(212,175,55,.25);
-    --warn:#d97706; --red:#c2410c; --green:#22c55e; --blue:#2563eb;
+    --warn:#d97706; --red:#ef4444; --green:#22c55e; --blue:#3b82f6;
+    --r:18px;
+    --maxw:1260px;
   }
-  *{box-sizing:border-box}
-  html,body{margin:0;background:#fff;color:var(--gold-deep);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
+
+  *{box-sizing:border-box; font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
+
+  html,body{
+    margin:0; background:var(--black); color:var(--ink);
+    min-height:100vh;
+  }
+
+  /* Fond grille + grain (même style que Passport/Protect) */
+  .gridbg{position:fixed; inset:-20vh -20vw; z-index:0;
+    background:
+      radial-gradient(900px 460px at 50% -10%, rgba(212,175,55,.10), transparent 60%),
+      repeating-linear-gradient(0deg, rgba(255,255,255,.03) 0 1px, transparent 1px 80px),
+      repeating-linear-gradient(90deg, rgba(255,255,255,.03) 0 1px, transparent 1px 80px);
+    mask-image: radial-gradient(80% 60% at 50% 40%, black, transparent);
+    animation:drift 60s linear infinite;
+  }
+  .noise{position:fixed; inset:0; pointer-events:none; z-index:0; opacity:.28; mix-blend-mode:soft-light;
+    background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="2" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncA type="table" tableValues="0 0 0 .05 .12 .05 0 0"/></feComponentTransfer></filter><rect width="100%" height="100%" filter="url(%23n)"/></svg>');
+  }
+  @keyframes drift{to{transform:translate3d(-30px,-20px,0)}}
+
+  /* Header */
   header{
     position:sticky; top:0; z-index:10;
     display:flex; justify-content:space-between; align-items:center;
-    padding:16px 24px; border-bottom:1px solid var(--gold-25);
-    backdrop-filter:blur(8px); background:rgba(255,255,255,.86)
+    padding:14px 22px; border-bottom:1px solid var(--line);
+    backdrop-filter:blur(10px); background:rgba(10,10,10,.65)
   }
   .brand{display:flex;align-items:center;gap:10px}
-  .brand img{width:36px;height:36px;filter:drop-shadow(0 0 10px var(--gold-18))}
-  .btn{border:1px solid var(--gold-deep);padding:8px 14px;border-radius:999px;background:var(--gold-deep);color:#fff;text-decoration:none;font-weight:700;cursor:pointer}
-  .btn-ghost{background:#fff;color:var(--gold-deep)}
-  main{max-width:1260px;margin:0 auto;padding:18px}
+  .brand img{width:36px;height:36px;border-radius:8px;object-fit:contain; box-shadow:0 10px 26px rgba(212,175,55,.18)}
+  .brand strong{letter-spacing:.04em}
+  .btn{
+    border:1px solid var(--line);
+    padding:10px 16px;border-radius:999px;
+    background:linear-gradient(180deg,var(--black2),var(--black3));
+    color:#fff;text-decoration:none;font-weight:700;cursor:pointer
+  }
+  .btn:hover{box-shadow:0 10px 30px rgba(212,175,55,.26)}
+  .btn-ghost{background:linear-gradient(180deg,transparent,transparent); border-color:var(--line); color:var(--ink)}
+
+  /* Main layout */
+  main{max-width:var(--maxw);margin:0 auto;padding:18px; position:relative; z-index:1}
   .bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:12px}
   .left, .right{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-  .input{padding:10px 12px;border:1px solid var(--gold-25);border-radius:10px}
+  .input{
+    padding:10px 12px;border:1px solid var(--line);border-radius:10px;
+    background:#0b0b0c; color:var(--ink)
+  }
+
   .columns{display:grid;grid-template-columns:220px 260px 1fr;gap:16px}
   @media (max-width:1100px){.columns{grid-template-columns:1fr}}
-  .panel{border:1px solid var(--gold-25);border-radius:16px;padding:12px;background:#fff;box-shadow:0 10px 26px var(--gold-10)}
-  .list{max-height:58vh;overflow:auto;border-top:1px solid var(--gold-25);margin-top:8px}
-  .item{padding:9px 8px;border-bottom:1px dashed var(--gold-25);cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px}
-  .item:hover{background:#fff9e7}
+
+  .panel{
+    border:1px solid var(--line);border-radius:16px;padding:12px;
+    background:linear-gradient(180deg,var(--black2),var(--black3));
+    box-shadow:0 10px 26px rgba(212,175,55,.10)
+  }
+  .list{max-height:58vh;overflow:auto;border-top:1px solid var(--line);margin-top:8px}
+  .item{
+    padding:9px 8px;border-bottom:1px dashed var(--line);cursor:pointer;
+    display:flex;align-items:center;justify-content:space-between;gap:10px
+  }
+  .item:hover{background:#0f0f12}
   .folder{display:inline-flex;align-items:center;gap:8px}
 
-  /* Tableau résultats */
+  /* Aujourd’hui box */
+  .today{
+    border:1px solid var(--line);border-radius:16px;padding:10px;
+    background:linear-gradient(180deg,#0f0f12,#0c0c0f)
+  }
+  .muted{color:var(--mute)}
+
+  /* Table */
   table{width:100%;border-collapse:collapse;font-size:.95rem}
-  thead th{position:sticky;top:0;background:#fff;border-bottom:2px solid var(--gold-25);padding:8px;text-align:left;z-index:1}
-  td{border-bottom:1px solid var(--gold-25);padding:8px;vertical-align:top}
-  .tag{display:inline-block;border:1px solid var(--gold-25);border-radius:999px;padding:2px 8px;font-size:.78rem;background:#fff}
-  .muted{opacity:.9}
-  .today{border:1px solid var(--gold-25);border-radius:16px;padding:10px;background:linear-gradient(180deg,#fff,#fffaf0)}
+  thead th{
+    position:sticky;top:0;background:#0f0f12;border-bottom:2px solid var(--line);
+    padding:8px;text-align:left;z-index:1; color:#fff
+  }
+  td{border-bottom:1px solid var(--line);padding:8px;vertical-align:top;color:#d9d9e2}
+  .tag{
+    display:inline-block;border:1px solid var(--line);border-radius:999px;
+    padding:2px 8px;font-size:.78rem;background:#0b0b0c
+  }
 
   /* Pastilles statut (pulsing) */
   .sig{display:inline-flex;align-items:center;gap:8px}
@@ -56,14 +116,42 @@
   .status-none{color:var(--green)}
   .status-intol{color:var(--warn)}
 
-  /* Hints de ligne */
-  .row-danger{background:linear-gradient(90deg, rgba(194,65,12,.06), transparent)}
-  .row-warn{background:linear-gradient(90deg, rgba(217,119,6,.06), transparent)}
-  .row-blue{background:linear-gradient(90deg, rgba(37,99,235,.06), transparent)}
-  .row-ok{background:linear-gradient(90deg, rgba(34,197,94,.06), transparent)}
+  /* Row hints */
+  .row-danger{background:linear-gradient(90deg, rgba(239,68,68,.10), transparent)}
+  .row-warn{background:linear-gradient(90deg, rgba(217,119,6,.10), transparent)}
+  .row-blue{background:linear-gradient(90deg, rgba(59,130,246,.10), transparent)}
+  .row-ok{background:linear-gradient(90deg, rgba(34,197,94,.10), transparent)}
+
+  /* MODAL contact (noir/or) */
+  .backdrop{position:fixed; inset:0; background:rgba(0,0,0,.45); display:none; align-items:center; justify-content:center; z-index:50; backdrop-filter:blur(4px)}
+  .modal{
+    width:min(460px,92vw); background:linear-gradient(180deg,var(--black2),var(--black3));
+    border:1px solid var(--line); border-radius:18px; padding:20px; text-align:center;
+    box-shadow:0 22px 68px rgba(212,175,55,.22)
+  }
+  .modal h3{margin:0 0 8px; color:#fff}
+  .emailbox{
+    border:1px solid var(--line); border-radius:12px; padding:12px; background:#0b0b0c;
+    font-weight:700; letter-spacing:.02em; color:#fff; user-select:all
+  }
+  .modal .actions{display:flex; gap:10px; justify-content:center; margin-top:12px}
+  .btn-gold{
+    border:1px solid var(--line); padding:10px 16px; border-radius:999px; cursor:pointer;
+    background:linear-gradient(180deg,var(--gold),var(--gold-deep)); color:#111; font-weight:800
+  }
+  .btn-gold:hover{box-shadow:0 10px 30px rgba(212,175,55,.35)}
+  .btn-dark{
+    border:1px solid var(--line); padding:10px 16px; border-radius:999px; cursor:pointer;
+    background:linear-gradient(180deg,#16161a,#0e0e10); color:#fff; font-weight:700
+  }
+  .btn-dark:hover{box-shadow:0 10px 30px rgba(212,175,55,.18)}
 </style>
 </head>
 <body>
+
+<div class="gridbg" aria-hidden="true"></div>
+<div class="noise" aria-hidden="true"></div>
+
 <header>
   <div class="brand"><img src="assets/logo.png" alt="logo"><strong>AllergoZyme Protect — Archives</strong></div>
   <div class="right">
@@ -136,6 +224,19 @@
   </div>
 </main>
 
+<!-- MODAL CONTACT -->
+<div class="backdrop" id="contactModal">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="contactTitle">
+    <h3 id="contactTitle">Contacter AllergoZyme</h3>
+    <p class="muted" style="margin:6px 0 10px">Adresse e-mail du support :</p>
+    <div class="emailbox" id="supportEmail">allergozymepro@gmail.com</div>
+    <div class="actions">
+      <button class="btn-gold" id="copyEmailBtn">Copier</button>
+      <button class="btn-dark" id="closeContactBtn">Fermer</button>
+    </div>
+  </div>
+</div>
+
 <script type="module">
   import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
@@ -161,7 +262,6 @@
   const fmtTime = (d)=>d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
 
   function classifyStatus(row){
-    // Statut : allergie > diabète > intolérance > aucun (si plusieurs, priorité allergie puis diabète)
     const allergens = (row.allergenes||"").toLowerCase();
     const others = (row.autres_allergenes||"").toLowerCase();
     const diab = !!row.diabete || allergens.includes('diabète') || allergens.includes('diabete');
@@ -172,8 +272,6 @@
     if (diab) return 'diabetes';
     if (hasIntol) return 'intol';
     if (row.aucune_allergie) return 'none';
-
-    // fallback s'il n'y a rien
     if (!allergens && !others && !diab) return 'none';
     return 'none';
   }
@@ -192,7 +290,7 @@
          : 'row-ok';
   }
 
-  // Fusion avec Passport si la signature n'a pas d'allergènes
+  // Fusion avec Passport si la signature n'a pas d'allergènes (LAISSE TEL QUEL)
   async function hydrateWithPassport(rows){
     if(!rows?.length) return rows;
     const contacts = Array.from(new Set(rows.map(r=>(r.emailnumero_client||'').trim()).filter(Boolean)));
@@ -224,7 +322,7 @@
     });
   }
 
-  // Récupère session & données
+  // Récupère session & données (LAISSE TEL QUEL)
   async function init(){
     const { data: sess } = await supabase.auth.getSession();
     if(!sess?.session){ window.location.href="identification.html"; return; }
@@ -259,7 +357,7 @@
     allRows = rows;
     buildToday(rows);
     buildYears(rows);
-    setupContactButton();
+    setupContactButton(); // conservé (ne casse rien)
   }
 
   function buildToday(rows){
@@ -335,7 +433,7 @@
       div.onclick=()=>{
         currentDayRows = byDay.get(day);
         renderRows(currentDayRows);
-        setupContactButton(day);
+        setupContactButton(day); // conservé
       };
       daysEl.appendChild(div);
     });
@@ -352,7 +450,6 @@
         const okSrc = (src==='all') || (src===source);
         if(!okSrc) return false;
 
-        // filtre statut
         const st = classifyStatus(r);
         const okStatus = (statusFilter==='all') || (statusFilter===st);
         if(!okStatus) return false;
@@ -415,7 +512,12 @@
     const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download="archives-jour.csv"; a.click();
   };
 
+  /* ==========
+     Bouton contact (on conserve setupContactButton pour ne rien casser,
+     mais on INTERCEPTE le clic pour ouvrir la MODAL, sans mailto)
+     ========== */
   function setupContactButton(dayISO){
+    // laissé en place intentionnellement (compat) — la modal prend le dessus
     const dayLabel = dayISO ? dayISO.split('-').reverse().join('/') : '';
     const subject = encodeURIComponent(`Demande d'assistance — Archives ${dayLabel || 'sélection en cours'}`);
     const body = encodeURIComponent(
@@ -429,6 +531,28 @@ ${restaurant?.responsable || ''}`
     contactBtn.href = `mailto:allergozymepro@gmail.com?subject=${subject}&body=${body}`;
   }
 
+  // --- Modal logic (noir/or) ---
+  const modal = document.getElementById('contactModal');
+  const copyBtn = document.getElementById('copyEmailBtn');
+  const closeBtn = document.getElementById('closeContactBtn');
+  const supportEmail = document.getElementById('supportEmail');
+
+  function openModal(){ modal.style.display='flex'; }
+  function closeModal(){ modal.style.display='none'; }
+
+  contactBtn.addEventListener('click', (e)=>{ e.preventDefault(); openModal(); });
+  closeBtn.addEventListener('click', closeModal);
+  modal.addEventListener('click', (e)=>{ if(e.target===modal) closeModal(); });
+  document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeModal(); });
+
+  copyBtn.addEventListener('click', async ()=>{
+    try{
+      await navigator.clipboard.writeText(supportEmail.textContent.trim());
+      // pas de toast — demandé : aucun autre message
+    }catch(_){}
+  });
+
+  // init
   await init();
 </script>
 </body>

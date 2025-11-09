@@ -1,320 +1,165 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Connexion — AllergoZymeProtect</title>
-  <meta name="description" content="Connexion restaurateur AllergoZymeProtect — Accédez à votre espace sécurisé : QR codes, signatures clients, formation et label." />
-  <link rel="icon" href="assets/logo.png" />
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Identification — AllergoZyme Protect</title>
+<link rel="icon" href="assets/logo.png"/>
 
-  <style>
-    :root {
-      --gold: #c9a227;
-      --gold-dark: #b68f1e;
-      --white: #ffffff;
-      --shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
-    }
+<style>
+:root{
+  --black:#0a0a0a; --black2:#0d0d0e; --black3:#131316; --black4:#0b0b0c;
+  --ink:#e7e7ea; --mute:#a8a8b6; --gold:#b6952a; --line:#202024;
+  --r:22px;
+}
+*{box-sizing:border-box; font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
 
-    * { box-sizing: border-box; font-family: "Poppins", system-ui, sans-serif; }
+body{
+  margin:0; background:var(--black); color:var(--ink);
+  display:flex; flex-direction:column; min-height:100vh;
+}
+.gridbg{position:fixed; inset:-20vh -20vw; z-index:0;
+  background:
+    radial-gradient(800px 400px at 50% -10%, rgba(183,149,42,.08), transparent 60%),
+    repeating-linear-gradient(0deg, rgba(255,255,255,.03) 0 1px, transparent 1px 80px),
+    repeating-linear-gradient(90deg, rgba(255,255,255,.03) 0 1px, transparent 1px 80px);
+  mask-image: radial-gradient(80% 60% at 50% 40%, black, transparent);
+  animation: drift 60s linear infinite;
+}
+.noise{position:fixed; inset:0; pointer-events:none; z-index:0; opacity:.28; mix-blend-mode:soft-light;
+  background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="2" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncA type="table" tableValues="0 0 0 .05 .12 .05 0 0"/></feComponentTransfer></filter><rect width="100%" height="100%" filter="url(%23n)"/></svg>');
+}
+@keyframes drift{to{transform:translate3d(-30px,-20px,0)}}
 
-    body {
-      margin: 0;
-      background: radial-gradient(circle at 50% 20%, rgba(201,162,39,0.15), transparent 70%), var(--white);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      color: var(--gold-dark);
-    }
+header{position:sticky; top:0; z-index:40; backdrop-filter:blur(10px); background:rgba(10,10,10,.6); border-bottom:1px solid var(--line); padding:14px 22px; display:flex; justify-content:space-between; align-items:center}
+.brand{display:flex; align-items:center; gap:12px}
+.brand img{width:40px; height:40px; border-radius:8px; object-fit:contain}
+.brand h1{margin:0; font-size:.9rem; letter-spacing:.12em; font-weight:900; text-transform:uppercase; color:#fff}
+.nav-actions a{color:var(--ink); padding:8px 16px; border:1px solid var(--line); border-radius:999px; font-size:.86rem; background:linear-gradient(180deg,var(--black2),var(--black3)); text-decoration:none}
+.nav-actions a:hover{box-shadow:0 6px 24px rgba(182,149,42,.28)}
 
-    .card {
-      background: #fff;
-      border-radius: 22px;
-      border: 1px solid rgba(201,162,39,0.35);
-      box-shadow: var(--shadow);
-      width: 100%;
-      max-width: 420px;
-      padding: 38px 32px;
-      text-align: center;
-      animation: fadeIn 0.6s ease;
-    }
+.main-center{flex:1; display:grid; place-items:center; padding:40px 14px}
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(15px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+.card{
+  background:linear-gradient(180deg,var(--black2),var(--black3));
+  border:1px solid var(--line); border-radius:var(--r); padding:42px 34px; width:100%; max-width:420px;
+  box-shadow:0 22px 68px rgba(182,149,42,.18); text-align:center; position:relative; z-index:2
+}
+.card img{width:80px; margin-bottom:14px}
+h1{margin:0 0 22px; font-size:1.4rem}
+label{display:block; text-align:left; font-size:.82rem; margin-bottom:6px; color:var(--mute)}
+input{
+  width:100%; padding:12px; border-radius:10px; border:1px solid var(--line); background:#0b0b0c; color:var(--ink); margin-bottom:16px
+}
+input:focus{outline:none; border-color:var(--gold); box-shadow:0 0 0 2px rgba(182,149,42,.32)}
 
-    h1 {
-      font-size: 1.6rem;
-      color: var(--gold-dark);
-      margin-bottom: 6px;
-    }
+.btn-primary{
+  width:100%; padding:14px; border-radius:999px; border:none;
+  background:linear-gradient(180deg,#b6952a,#9c8024); color:#fff; font-weight:700; cursor:pointer
+}
+.btn-primary:hover{box-shadow:0 12px 36px rgba(182,149,42,.35)}
 
-    p.subtitle {
-      font-size: .95rem;
-      color: #7c6a21;
-      margin-top: 0;
-      margin-bottom: 28px;
-    }
+.forgot{text-align:right; margin-top:-6px; margin-bottom:16px}
+.forgot a{color:var(--mute); font-size:.78rem}
+.forgot a:hover{text-decoration:underline}
 
-    label {
-      text-align: left;
-      display: block;
-      font-weight: 600;
-      font-size: .9rem;
-      margin-bottom: 6px;
-    }
+a.link{color:var(--gold); text-decoration:none; display:inline-block; margin-top:12px}
+a.link:hover{text-shadow:0 0 12px rgba(182,149,42,.6)}
 
-    input {
-      width: 100%;
-      padding: 12px;
-      border-radius: 10px;
-      border: 1px solid rgba(201,162,39,0.35);
-      font-size: 15px;
-      margin-bottom: 16px;
-      transition: border .2s ease, box-shadow .2s ease;
-    }
-
-    input:focus {
-      border-color: var(--gold-dark);
-      box-shadow: 0 0 8px rgba(201,162,39,0.25);
-      outline: none;
-    }
-
-    button {
-      width: 100%;
-      background: linear-gradient(135deg, var(--gold), var(--gold-dark));
-      color: white;
-      border: none;
-      border-radius: 999px;
-      padding: 13px;
-      font-weight: 600;
-      font-size: 16px;
-      cursor: pointer;
-      transition: all .25s ease;
-      box-shadow: 0 5px 15px rgba(201,162,39,0.25);
-    }
-
-    button:hover {
-      background: linear-gradient(135deg, var(--gold-dark), var(--gold));
-      transform: translateY(-2px);
-    }
-
-    .forgot {
-      text-align: right;
-      margin-top: -8px;
-      margin-bottom: 14px;
-    }
-
-    .forgot a {
-      font-size: .85rem;
-      color: var(--gold-dark);
-      text-decoration: none;
-      font-weight: 600;
-    }
-
-    .forgot a:hover { text-decoration: underline; }
-
-    .foot {
-      text-align: center;
-      margin-top: 18px;
-      font-size: .9rem;
-    }
-
-    .foot a {
-      color: var(--gold-dark);
-      text-decoration: none;
-      font-weight: 600;
-    }
-
-    .foot a:hover { text-decoration: underline; }
-
-    /* Popup */
-    .popup-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.45);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      backdrop-filter: blur(4px);
-      z-index: 100;
-    }
-
-    .popup {
-      background: #fff;
-      border-radius: 18px;
-      border: 1px solid rgba(201,162,39,0.35);
-      box-shadow: 0 10px 40px rgba(0,0,0,0.12);
-      max-width: 360px;
-      width: 90%;
-      padding: 28px;
-      text-align: center;
-      animation: fadeIn .4s ease;
-    }
-
-    .popup img {
-      width: 65px;
-      margin-bottom: 10px;
-    }
-
-    .popup h2 {
-      color: var(--gold-dark);
-      font-size: 1.2rem;
-      margin-bottom: 10px;
-    }
-
-    .popup p {
-      color: #7c6a21;
-      font-size: .9rem;
-      margin-bottom: 12px;
-    }
-
-    .popup input {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid rgba(201,162,39,0.35);
-      border-radius: 8px;
-      text-align: center;
-      margin-bottom: 12px;
-      font-size: .95rem;
-    }
-
-    .popup button {
-      background: linear-gradient(135deg, var(--gold), var(--gold-dark));
-      color: white;
-      border: none;
-      border-radius: 999px;
-      padding: 10px 24px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all .2s ease;
-    }
-
-    .popup button:hover { background: linear-gradient(135deg, var(--gold-dark), var(--gold)); }
-
-    .popup .close {
-      background: none;
-      border: none;
-      color: #7a6820;
-      font-size: .8rem;
-      margin-top: 8px;
-      cursor: pointer;
-    }
-
-    .msg {
-      font-size: .9rem;
-      margin-top: 10px;
-      display: none;
-    }
-
-    .msg.success { color: #2e7d32; display: block; }
-    .msg.error { color: #a32222; display: block; }
-  </style>
+/* popup */
+.popup-backdrop{position:fixed; inset:0; background:rgba(0,0,0,.4); backdrop-filter:blur(4px); display:none; align-items:center; justify-content:center; z-index:50}
+.popup{background:var(--black2); border:1px solid var(--line); border-radius:20px; padding:32px; width:90%; max-width:380px; text-align:center; box-shadow:0 22px 68px rgba(182,149,42,.22)}
+.popup input{background:#0c0c0f}
+.popup button{background:linear-gradient(180deg,#b6952a,#9c8024); border:none; padding:10px 24px; border-radius:999px; color:white; font-weight:600; margin-top:10px; cursor:pointer}
+.popup .close{background:transparent; border:none; color:var(--mute); margin-top:12px}
+.msg{font-size:.8rem; margin-top:8px; display:none}
+.msg.success{color:#2e7d32;display:block}
+.msg.error{color:#bc4a4a;display:block}
+</style>
 </head>
 <body>
+
+<div class="gridbg"></div>
+<div class="noise"></div>
+
+<header>
+  <div class="brand">
+    <img src="assets/logo.png" alt="logo"/>
+    <h1>AllergoZyme Protect</h1>
+  </div>
+</header>
+
+<div class="main-center">
   <div class="card">
-    <h1>AllergoZymeProtect</h1>
-    <p class="subtitle">Connexion à votre espace restaurateur</p>
+    <img src="assets/logo.png" alt="AllergoZyme Logo"/>
+    <h1>Identification</h1>
 
     <form id="loginForm">
       <label for="email">Adresse e-mail</label>
-      <input type="email" id="email" required />
+      <input type="email" id="email" required placeholder="exemple@email.com"/>
 
       <label for="password">Mot de passe</label>
-      <input type="password" id="password" required />
+      <input type="password" id="password" required placeholder="••••••••"/>
 
       <div class="forgot">
         <a href="#" id="forgotLink">Mot de passe oublié ?</a>
       </div>
 
-      <button type="submit">Se connecter</button>
+      <button type="submit" class="btn-primary">Se connecter</button>
     </form>
 
-    <div class="foot">
-      <p>Pas encore inscrit ? <a href="inscription.html">Créer un compte</a></p>
-    </div>
+    <a href="inscription.html" class="link">Créer un compte</a>
   </div>
+</div>
 
-  <!-- Popup -->
-  <div class="popup-backdrop" id="popup">
-    <div class="popup">
-      <img src="assets/logo.png" alt="AllergoZyme Logo" />
-      <h2>Réinitialiser le mot de passe</h2>
-      <p>Entrez votre e-mail pour recevoir le lien de réinitialisation.</p>
-      <input type="email" id="resetEmail" placeholder="exemple@email.com" />
-      <button id="resetBtn">Envoyer</button>
-      <button class="close" id="closePopup">Annuler</button>
-      <div id="resetMsg" class="msg"></div>
-    </div>
+<div class="popup-backdrop" id="popup">
+  <div class="popup">
+    <img src="assets/logo.png" alt="AllergoZyme Logo" style="width:65px;margin-bottom:10px"/>
+    <h2 style="color:white;font-size:20px;margin-bottom:10px">Réinitialiser le mot de passe</h2>
+    <p style="color:var(--mute);font-size:13px;margin-bottom:10px">Entrez votre adresse e-mail pour recevoir un lien sécurisé.</p>
+    <input type="email" id="resetEmail" placeholder="exemple@email.com"/>
+    <button id="resetBtn">Valider</button>
+    <button class="close" id="closePopup">Annuler</button>
+    <div id="resetMsg" class="msg"></div>
   </div>
+</div>
 
-  <script type="module">
-    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+const supabase = createClient(
+  'https://tmrraeutjrcsozijjbzm.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtcnJhZXV0anJjc296aWpqYnptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA4MDA4NzIsImV4cCI6MjA3NjM3Njg3Mn0.015qUFsUyndsesz5RHGKWO1Ipoz7C3vcVZulACGmq0g'
+)
 
-    const supabase = createClient(
-      "https://tmrraeutjrcsozijjbzm.supabase.co",
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtcnJhZXV0anJjc296aWpqYnptIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA4MDA4NzIsImV4cCI6MjA3NjM3Njg3Mn0.015qUFsUyndsesz5RHGKWO1Ipoz7C3vcVZulACGmq0g"
-    );
+const loginForm=document.getElementById('loginForm')
+const popup=document.getElementById('popup')
+const forgotLink=document.getElementById('forgotLink')
+const closePopup=document.getElementById('closePopup')
+const resetBtn=document.getElementById('resetBtn')
+const resetEmail=document.getElementById('resetEmail')
+const resetMsg=document.getElementById('resetMsg')
 
-    const loginForm = document.getElementById("loginForm");
-    const popup = document.getElementById("popup");
-    const forgotLink = document.getElementById("forgotLink");
-    const closePopup = document.getElementById("closePopup");
-    const resetBtn = document.getElementById("resetBtn");
-    const resetEmail = document.getElementById("resetEmail");
-    const resetMsg = document.getElementById("resetMsg");
+forgotLink.onclick=e=>{e.preventDefault();popup.style.display='flex';resetEmail.value='';resetMsg.style.display='none'}
+closePopup.onclick=()=>popup.style.display='none'
+popup.onclick=e=>{if(e.target===popup)popup.style.display='none'}
 
-    // Connexion
-    loginForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value.trim();
+resetBtn.onclick=async()=>{
+  const email=resetEmail.value.trim()
+  if(!email){resetMsg.textContent='Veuillez renseigner votre e-mail.';resetMsg.className='msg error';return}
+  const { error }=await supabase.auth.resetPasswordForEmail(email,{redirectTo:window.location.origin+'/reset.html'})
+  if(error){resetMsg.textContent=' '+error.message;resetMsg.className='msg error'}
+  else{resetMsg.textContent=' Lien envoyé ! Vérifiez votre boîte mail.';resetMsg.className='msg success';setTimeout(()=>popup.style.display='none',2300)}
+}
 
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) {
-        alert("❌ " + error.message);
-      } else {
-        window.location.href = "dashboard.html";
-      }
-    });
+loginForm.onsubmit=async e=>{
+  e.preventDefault()
+  const email=document.getElementById('email').value.trim()
+  const password=document.getElementById('password').value
+  const { error }=await supabase.auth.signInWithPassword({email,password})
+  if(error){alert(' '+error.message)}
+  else{window.location.href='dashboard.html'}
+}
+</script>
 
-    // Ouvrir la popup
-    forgotLink.addEventListener("click", (e) => {
-      e.preventDefault();
-      popup.style.display = "flex";
-      resetEmail.value = "";
-      resetMsg.style.display = "none";
-    });
-
-    // Fermer la popup
-    closePopup.addEventListener("click", () => (popup.style.display = "none"));
-    popup.addEventListener("click", (e) => { if (e.target === popup) popup.style.display = "none"; });
-
-    // Envoi du lien de réinitialisation
-    resetBtn.addEventListener("click", async () => {
-      const email = resetEmail.value.trim();
-      if (!email) {
-        resetMsg.textContent = "Veuillez renseigner votre adresse e-mail.";
-        resetMsg.className = "msg error";
-        return;
-      }
-
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: "https://allergozymeprotect.com/reset.html"
-      });
-
-      if (error) {
-        resetMsg.textContent = "❌ " + error.message;
-        resetMsg.className = "msg error";
-      } else {
-        resetMsg.textContent = "✅ Vous avez reçu un e-mail pour réinitialiser votre mot de passe.";
-        resetMsg.className = "msg success";
-        setTimeout(() => {
-          popup.style.display = "none";
-        }, 3000);
-      }
-    });
-  </script>
 </body>
 </html>
