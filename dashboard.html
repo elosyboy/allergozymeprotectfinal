@@ -4,105 +4,191 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AllergoZymeProtect — Tableau de bord</title>
-  <meta name="description" content="Espace pro : QR général (x3), QR par table, paiement, statut abonnement, plan de salle. Blanc & doré, premium." />
+  <meta name="description" content="Espace pro : QR général (x3), QR par table, paiement, statut abonnement, plan de salle. Noir & doré, premium." />
   <link rel="icon" href="assets/favicon.ico" />
   <style>
     :root{
-      --gold:#d4af37; --gold-deep:#b68f1e; --white:#ffffff;
-      --gold-08:rgba(212,175,55,0.08); --gold-10:rgba(212,175,55,0.10);
-      --gold-18:rgba(212,175,55,0.18); --gold-25:rgba(212,175,55,0.25);
-      --gold-35:rgba(212,175,55,0.35); --gold-45:rgba(212,175,55,0.45);
-    }
-    *{box-sizing:border-box}
-    html,body{margin:0;background:var(--white);color:var(--gold-deep);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
-    body{background:linear-gradient(180deg,var(--white) 0%,#fff9e7 60%,var(--white) 100%)}
+      /* Palette dark premium */
+      --bg:#0a0a0a;
+      --bg-2:#0e0e0e;
+      --panel:#111213;
+      --panel-2:#151617;
+      --ink:#f7f3e7;             /* texte principal chaud */
+      --ink-dim:#cfc7b1;         /* texte secondaire */
+      --gold:#d4af37;
+      --gold-deep:#b68f1e;
 
+      /* Alphas dorées pour bordures/ombres */
+      --gold-08:rgba(212,175,55,0.08);
+      --gold-10:rgba(212,175,55,0.10);
+      --gold-18:rgba(212,175,55,0.18);
+      --gold-25:rgba(212,175,55,0.25);
+      --gold-35:rgba(212,175,55,0.35);
+      --gold-45:rgba(212,175,55,0.45);
+    }
+
+    *{box-sizing:border-box}
+    html,body{
+      margin:0;
+      background:var(--bg);
+      color:var(--ink);
+      font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+    }
+    body{
+      background:
+        radial-gradient(1000px 500px at 15% -10%, rgba(212,175,55,.06), transparent 60%),
+        radial-gradient(1200px 600px at 120% 10%, rgba(212,175,55,.05), transparent 60%),
+        linear-gradient(180deg, #0a0a0a 0%, #0a0a0a 100%);
+    }
+
+    /* Header */
     header{
       position:sticky;top:0;z-index:30;display:flex;align-items:center;justify-content:space-between;
       padding:16px 22px;border-bottom:1px solid var(--gold-25);backdrop-filter:blur(10px);
-      background:rgba(255,255,255,.86);box-shadow:0 6px 24px var(--gold-10)
+      background:rgba(10,10,10,.72);
+      box-shadow:0 6px 24px rgba(0,0,0,.45);
     }
     .brand{display:flex;align-items:center;gap:12px}
-    .brand img{width:44px;height:44px;filter:drop-shadow(0 0 12px var(--gold-25))}
+    .brand img{
+      width:44px;height:44px;
+      filter:drop-shadow(0 0 10px var(--gold-18));
+    }
     .brand h1{
       margin:0;font-size:1.05rem;letter-spacing:.14em;text-transform:uppercase;
-      background:linear-gradient(90deg,var(--gold-deep),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent
+      background:linear-gradient(90deg,var(--gold),#fff7c2,var(--gold-deep));
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent
     }
     .top-actions{display:flex;align-items:center;gap:10px}
-    .btn{border:1px solid var(--gold-deep);padding:10px 16px;border-radius:999px;background:var(--gold-deep);color:#fff;font-weight:700;text-decoration:none;cursor:pointer;transition:transform .2s, box-shadow .2s}
-    .btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px var(--gold-25)}
-    .btn-ghost{background:#fff;color:var(--gold-deep)}
-    .status-dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--gold-deep);margin-left:6px}
-    .status-red{background:#c94141;box-shadow:0 0 10px rgba(201,65,65,.4)}
-    .status-green{background:#3aa357;box-shadow:0 0 10px rgba(58,163,87,.4)}
-    .btn-bw{
-     background:#000;color:#fff;border:1px solid #000;font-weight:700;padding:10px 16px;border-radius:999px;cursor:pointer;transition:0.25s;
+
+    /* Buttons */
+    .btn{
+      border:1px solid var(--gold);
+      padding:10px 16px;border-radius:999px;
+      background:linear-gradient(180deg,var(--gold-deep),var(--gold));
+      color:#141414;font-weight:800;text-decoration:none;cursor:pointer;
+      transition:transform .2s, box-shadow .2s, filter .15s;
     }
-    .btn-bw:hover{background:#fff;color:#000;transform:translateY(-2px);box-shadow:0 10px 18px rgba(0,0,0,.25);}
+    .btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(212,175,55,.25)}
+    .btn-ghost{
+      background:transparent;color:var(--ink);
+      border:1px solid var(--gold-35)
+    }
+    .btn-ghost:hover{
+      box-shadow:0 8px 20px rgba(212,175,55,.15);
+      filter:brightness(1.08)
+    }
+
+    .status-dot{
+      width:14px;height:14px;border-radius:50%;
+      border:2px solid var(--gold);margin-left:6px
+    }
+    .status-red{background:#c94141;box-shadow:0 0 10px rgba(201,65,65,.5)}
+    .status-green{background:#3aa357;box-shadow:0 0 10px rgba(58,163,87,.6)}
 
     main{max-width:1280px;margin:0 auto;padding:24px 16px 80px}
-    .card{background:#fff;border:1px solid var(--gold-25);border-radius:22px;padding:20px;box-shadow:0 14px 36px var(--gold-10);margin:16px 0;position:relative;overflow:hidden}
-    .card::after{content:"";position:absolute;inset:-1px;border-radius:22px;background:radial-gradient(900px 160px at 20% -10%, var(--gold-10), transparent 40%);pointer-events:none}
-    h2{margin:0 0 10px;text-align:center;background:linear-gradient(90deg,var(--gold-deep),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-    .muted{opacity:.92}
+
+    /* Cards */
+    .card{
+      background:linear-gradient(180deg,var(--panel) 0%, var(--panel-2) 100%);
+      border:1px solid var(--gold-25);border-radius:22px;padding:20px;
+      box-shadow:0 14px 36px rgba(0,0,0,.45);margin:16px 0;position:relative;overflow:hidden
+    }
+    .card::after{
+      content:"";position:absolute;inset:-1px;border-radius:22px;
+      background:radial-gradient(900px 160px at 20% -10%, var(--gold-08), transparent 40%);
+      pointer-events:none
+    }
+    h2{
+      margin:0 0 10px;text-align:center;
+      background:linear-gradient(90deg,#fff7c2,var(--gold));
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent
+    }
+    .muted{color:var(--ink-dim)}
     .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center}
-    .input{padding:12px 14px;border:1px solid var(--gold-25);border-radius:12px;font-size:1rem;min-width:180px;background:#fff}
-    .color{width:52px;height:44px;padding:0;border-radius:12px;border:1px solid var(--gold-25);background:#fff}
-    .note{font-size:.92rem;opacity:.9}
+
+    /* Inputs dark */
+    .input{
+      padding:12px 14px;border:1px solid var(--gold-25);border-radius:12px;
+      font-size:1rem;min-width:180px;background:#0b0b0b;color:var(--ink)
+    }
+    .input::placeholder{color:#9a916f}
+    .color{
+      width:52px;height:44px;padding:0;border-radius:12px;border:1px solid var(--gold-25);
+      background:#0b0b0b
+    }
+    .note{font-size:.92rem;color:var(--ink-dim)}
     .grid{display:grid;gap:18px}
     .grid-2{grid-template-columns:1.1fr .9fr}
     @media (max-width:1100px){.grid-2{grid-template-columns:1fr}}
 
+    /* Overlay (lock) */
     .overlay-locked{
       position:fixed; inset:64px 0 0 0; z-index:20; display:none;
-      background:linear-gradient(180deg, rgba(255,255,255,.78), rgba(255,255,255,.92));
-      backdrop-filter: blur(6px);
+      background:linear-gradient(180deg, rgba(10,10,10,.72), rgba(10,10,10,.92));
+      backdrop-filter: blur(6px); color:var(--ink);
     }
     .overlay-locked.active{display:flex; align-items:center; justify-content:center}
     .overlay-locked .box{
-      border:2px dashed var(--gold-45); border-radius:18px; padding:22px; background:#fff; max-width:720px; box-shadow:0 10px 32px var(--gold-18); text-align:center
+      border:2px dashed var(--gold-45); border-radius:18px; padding:22px; background:#0e0e0f;
+      max-width:720px; box-shadow:0 10px 32px rgba(0,0,0,.55); text-align:center
     }
     .overlay-locked h3{margin:0 0 8px}
     .overlay-locked p{margin:0 0 12px}
-    .overlay-locked .btn{margin-top:6px}
 
+    /* QR x3 */
     .qr-triple{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-top:14px}
     @media (max-width:1000px){.qr-triple{grid-template-columns:1fr}}
-    .qr-card{border:1px solid var(--gold-25);border-radius:18px;padding:14px;text-align:center;box-shadow:0 10px 24px var(--gold-10);background:#fff}
+    .qr-card{
+      border:1px solid var(--gold-25);border-radius:18px;padding:14px;text-align:center;
+      box-shadow:0 10px 24px rgba(0,0,0,.45);background:#0f0f0f
+    }
     .qr-wrap{display:grid;place-items:center}
-    .qr-logo-under{margin-top:8px;display:flex;align-items:center;justify-content:center;gap:8px}
+    .qr-logo-under{margin-top:8px;display:flex;align-items:center;justify-content:center;gap:8px;color:var(--ink)}
     .qr-logo-under img{width:28px;height:28px;object-fit:contain;filter:drop-shadow(0 0 6px var(--gold-18))}
-    .qr-logo-under .brand-small{font-weight:800;letter-spacing:.08em}
+    .qr-logo-under .brand-small{font-weight:800;letter-spacing:.08em;color:var(--ink)}
 
+    /* Plan de salle */
     .floor{
-      min-height:420px;border:1px dashed var(--gold-45);border-radius:18px;background:linear-gradient(180deg,#fff,rgba(212,175,55,.06));
+      min-height:420px;border:1px dashed var(--gold-45);border-radius:18px;
+      background:linear-gradient(180deg,#0b0b0b,rgba(212,175,55,.03));
       position:relative; overflow:hidden
     }
     .grid-bg{
       position:absolute; inset:0; background-image:
-        linear-gradient(to right, rgba(212,175,55,.18) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(212,175,55,.18) 1px, transparent 1px);
-      background-size:40px 40px; pointer-events:none; opacity:.35
+        linear-gradient(to right, rgba(212,175,55,.12) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(212,175,55,.12) 1px, transparent 1px);
+      background-size:40px 40px; pointer-events:none; opacity:.25
     }
     .table-dot{
-      position:absolute; width:96px; height:96px; display:grid; place-items:center; color:var(--gold-deep);
-      background:#fff; border:2px solid var(--gold-deep); border-radius:16px; cursor:move; user-select:none;
-      box-shadow:0 14px 28px var(--gold-10)
+      position:absolute; width:96px; height:96px; display:grid; place-items:center; color:var(--ink);
+      background:#0e0e0f; border:2px solid var(--gold); border-radius:16px; cursor:move; user-select:none;
+      box-shadow:0 14px 28px rgba(0,0,0,.45)
     }
     .table-dot.round{border-radius:50%}
     .table-dot .label{font-weight:800}
-    .dragging{opacity:.8; transform:scale(1.02)}
+    .dragging{opacity:.9; transform:scale(1.02)}
 
+    /* Liste tables */
     .tables{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;margin-top:12px}
-    .table-card{border:1px solid var(--gold-25);border-radius:18px;padding:14px;text-align:center;box-shadow:0 10px 24px var(--gold-10);transition:transform .2s;background:#fff}
+    .table-card{
+      border:1px solid var(--gold-25);border-radius:18px;padding:14px;text-align:center;
+      box-shadow:0 10px 24px rgba(0,0,0,.45);transition:transform .2s;background:#0f0f0f;color:var(--ink)
+    }
     .table-card:hover{transform:translateY(-3px)}
-    .table-shape{display:inline-flex;align-items:center;justify-content:center;width:96px;height:96px;border:2px solid var(--gold-deep);margin-bottom:8px;font-weight:800;color:var(--gold-deep);background:#fff}
+    .table-shape{
+      display:inline-flex;align-items:center;justify-content:center;width:96px;height:96px;
+      border:2px solid var(--gold);margin-bottom:8px;font-weight:800;color:var(--ink);background:#0e0e0f
+    }
     .round{border-radius:50%}
     .table-actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
-    .mini{padding:8px 10px;border-radius:10px;font-weight:700;border:1px solid var(--gold-25);background:#fff;cursor:pointer}
-    .mini:hover{box-shadow:0 8px 18px var(--gold-10)}
+    .mini{
+      padding:8px 10px;border-radius:10px;font-weight:700;border:1px solid var(--gold-25);
+      background:transparent;color:var(--ink);cursor:pointer
+    }
+    .mini:hover{box-shadow:0 8px 18px rgba(0,0,0,.45)}
     .danger{background:#c94141;color:#fff;border-color:#c94141}
-    .soft{background:var(--gold);color:#333;border-color:#gold}
+    .soft{background:var(--gold);color:#141414;border-color:var(--gold)}
+    a, button{outline:none}
   </style>
 </head>
 <body>
@@ -112,8 +198,8 @@
       <h1>AllergoZyme Protect</h1>
     </div>
     <div class="top-actions">
-      <a class="btn btn-ghost" href="archive.html">Archive</a>
-      <!-- Bouton Payer retiré du header -->
+      <a class="btn-ghost btn" href="archive.html">Archive</a>
+      <a id="payBtn" class="btn">Payer l’abonnement</a>
       <div id="payCircle" class="status-dot status-red" title="Statut abonnement"></div>
     </div>
   </header>
@@ -123,10 +209,13 @@
     <div class="box">
       <h3>Abonnement inactif</h3>
       <p class="muted">Votre abonnement annuel est inactif. Aucune fonctionnalité n’est accessible et les QR ne sont pas utilisables.</p>
-      <div id="paypalZone" class="row" style="margin-top:10px; display:none;">
-        <div id="paypal-button-container-overlay"></div>
+
+      <!-- ⚠️ La zone PayPal est automatiquement masquée quand paiement actif -->
+      <div id="paypalZone" class="row" style="margin-top:10px">
+        <div id="paypal-button-container-P-9NN80675AT539804WNDZ4JNY"></div>
       </div>
-      <button id="retryStatus" class="btn btn-ghost" style="margin-top:10px">Rafraîchir le statut</button>
+
+      <button id="retryStatus" class="btn-ghost btn" style="margin-top:10px">Rafraîchir le statut</button>
     </div>
   </div>
 
@@ -135,12 +224,6 @@
     <section class="card" id="statusCard">
       <h2>Statut de l’abonnement</h2>
       <p class="muted" id="statusText" style="text-align:center">Vérification en cours…</p>
-
-      <!-- Zone de paiement visible UNIQUEMENT si non payé -->
-      <div id="statusPayRow" class="row" style="margin-top:10px; display:none;">
-        <div id="paypal-button-container-status"></div>
-        <button id="openOverlay" class="btn btn-ghost" title="Payer dans une fenêtre">Payer dans une fenêtre</button>
-      </div>
     </section>
 
     <!-- QR général x3 -->
@@ -148,10 +231,10 @@
       <h2>QR Code Général (x3)</h2>
       <p class="note" style="text-align:center">QR unique pour l’établissement — choisissez la couleur. Le logo AllergoZyme est affiché en dessous pour signature visuelle.</p>
       <div class="row" style="justify-content:center;margin-top:8px">
-        <label>Couleur :</label>
+        <label class="muted">Couleur :</label>
         <input type="color" id="generalColor" class="color" value="#b68f1e" />
         <button id="regenGeneral" class="btn">Actualiser</button>
-        <button id="saveGeneral" class="btn btn-ghost">Sauvegarder la couleur</button>
+        <button id="saveGeneral" class="btn-ghost btn">Sauvegarder la couleur</button>
       </div>
       <div class="qr-triple">
         <div class="qr-card">
@@ -161,7 +244,7 @@
             <span class="brand-small">AllergoZyme</span>
           </div>
           <div class="row" style="margin-top:8px">
-            <button id="downloadGeneralL" class="btn btn-ghost">Télécharger</button>
+            <button id="downloadGeneralL" class="btn-ghost btn">Télécharger</button>
           </div>
         </div>
         <div class="qr-card">
@@ -171,7 +254,7 @@
             <span class="brand-small">AllergoZyme</span>
           </div>
           <div class="row" style="margin-top:8px">
-            <button id="downloadGeneralC" class="btn btn-ghost">Télécharger</button>
+            <button id="downloadGeneralC" class="btn-ghost btn">Télécharger</button>
           </div>
         </div>
         <div class="qr-card">
@@ -181,7 +264,7 @@
             <span class="brand-small">AllergoZyme</span>
           </div>
           <div class="row" style="margin-top:8px">
-            <button id="downloadGeneralR" class="btn btn-ghost">Télécharger</button>
+            <button id="downloadGeneralR" class="btn-ghost btn">Télécharger</button>
           </div>
         </div>
       </div>
@@ -229,22 +312,29 @@
         const payCircle = document.getElementById('payCircle');
         const statusText = document.getElementById('statusText');
         const lockOverlay = document.getElementById('lockOverlay');
+        const payBtn = document.getElementById('payBtn');
+        const paypalZone = document.getElementById('paypalZone');
 
         if (payCircle) payCircle.classList.add('status-green');
         if (statusText) statusText.textContent = "Abonnement admin actif à vie.";
         if (lockOverlay) lockOverlay.classList.remove('active');
+        if (paypalZone) paypalZone.style.display = 'none';
+        if (payBtn) payBtn.style.display = 'none';
 
-        // QR auto
+        // 🧠 Création automatique du QR général en mode admin
         try {
           const canvL = document.getElementById('generalCanvasL');
           const canvC = document.getElementById('generalCanvasC');
           const canvR = document.getElementById('generalCanvasR');
+
           const color = "#b68f1e";
           const baseUrl = window.location.origin + "/signature.html?restaurant=ADMIN-DEMO&type=general";
+
           const QR = window.QRCode;
-          await QR.toCanvas(canvL, baseUrl, { color: { dark: color, light: "#fff" }, width: 260 });
-          await QR.toCanvas(canvC, baseUrl, { color: { dark: color, light: "#fff" }, width: 260 });
-          await QR.toCanvas(canvR, baseUrl, { color: { dark: color, light: "#fff" }, width: 260 });
+          await QR.toCanvas(canvL, baseUrl, { color: { dark: color, light: "#ffffff" }, width: 260 });
+          await QR.toCanvas(canvC, baseUrl, { color: { dark: color, light: "#ffffff" }, width: 260 });
+          await QR.toCanvas(canvR, baseUrl, { color: { dark: color, light: "#ffffff" }, width: 260 });
+
           console.log("✅ QR générés automatiquement (mode admin)");
         } catch (err) {
           console.error("Erreur génération QR admin:", err);
@@ -260,13 +350,11 @@
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     // ---------- ELEMENTS ----------
+    const payBtn = document.getElementById('payBtn');
     const payCircle = document.getElementById('payCircle');
     const statusText = document.getElementById('statusText');
     const lockOverlay = document.getElementById('lockOverlay');
     const retryStatus = document.getElementById('retryStatus');
-
-    const statusPayRow = document.getElementById('statusPayRow');
-    const openOverlay = document.getElementById('openOverlay');
     const paypalZone = document.getElementById('paypalZone');
 
     const generalColor  = document.getElementById('generalColor');
@@ -281,6 +369,7 @@
 
     const tableName  = document.getElementById('tableName');
     const tableShape = document.getElementById('tableShape');
+    thead
     const tableColor = document.getElementById('tableColor');
     const addTable   = document.getElementById('addTable');
     const floor      = document.getElementById('floor');
@@ -290,27 +379,29 @@
     let session = null;
     let restaurant = null;
     let paymentActive = false;
-    let paypalRendered = { status:false, overlay:false };
 
     // ---------- HELPERS ----------
     function setPaymentUI(active){
       paymentActive = active;
 
-      // pastilles & texte
+      // Statut visuel
       if(active){
         payCircle.classList.remove('status-red'); payCircle.classList.add('status-green');
         statusText.textContent = "Abonnement actif. Toutes les fonctionnalités sont disponibles.";
-        // cacher overlay + zone de paiement
         lockOverlay.classList.remove('active');
-        statusPayRow.style.display = 'none';
-        paypalZone.style.display = 'none';
       }else{
         payCircle.classList.remove('status-green'); payCircle.classList.add('status-red');
-        statusText.textContent = "Abonnement inactif. Veuillez activer votre abonnement pour déverrouiller toutes les fonctionnalités.";
-        lockOverlay.classList.add('active'); // bloque l'app
-        statusPayRow.style.display = 'flex'; // montre le bouton PayPal DANS la carte Statut
-        paypalZone.style.display = 'flex';   // montre le bouton PayPal dans l'overlay
-        ensurePaypalButtons();               // rend les boutons si besoin
+        statusText.textContent = "Abonnement inactif. Le tableau de bord et les QR sont désactivés.";
+        lockOverlay.classList.add('active');
+      }
+
+      // Affichage/masquage PayPal + bouton header
+      if (active || adminMode) {
+        if (paypalZone) paypalZone.style.display = 'none';
+        if (payBtn) payBtn.style.display = 'none';
+      } else {
+        if (paypalZone) paypalZone.style.display = 'block';
+        if (payBtn) payBtn.style.display = 'inline-flex';
       }
     }
 
@@ -326,21 +417,29 @@
       const tmp = document.createElement('canvas');
       await QR.toCanvas(tmp, url, { color:{ dark:darkHex, light:"#ffffff" }, width:260, margin:1 });
       const ctx = canvas.getContext('2d');
-      canvas.width = tmp.width; canvas.height = tmp.height + 50; // espace dessous pour logo
+
+      // On garde un fond blanc sous le QR pour une impression lisible
+      canvas.width = tmp.width; canvas.height = tmp.height + 50;
       ctx.fillStyle = "#ffffff";
       ctx.fillRect(0,0,canvas.width,canvas.height);
       ctx.drawImage(tmp, 0, 0);
+
+      // LOGO plus grand / + qualitatif
       const logo = new Image();
       logo.src = 'assets/logo.png';
       await new Promise(res => { logo.onload = res; logo.onerror = res; });
-      const size = 28;
-      const lx = (canvas.width - size)/2;
-      const ly = tmp.height + (50 - size)/2;
+
+      // taille x2 pour plus de netteté
+      const size = 60; // au lieu de 28
+      const lx = (canvas.width - size) / 2;
+      const ly = tmp.height + 6; // logo plus proche du QR
+
       ctx.save();
-      ctx.shadowColor = 'rgba(0,0,0,.08)';
-      ctx.shadowBlur = 6;
-      ctx.drawImage(logo, lx, ly, size, size);
+      ctx.shadowColor = 'rgba(0,0,0,0.40)';
+      ctx.shadowBlur = 14;
+      c.tx.drawImage(logo, lx, ly, size, size);
       ctx.restore();
+
     }
 
     function baseScanUrl(params){
@@ -353,9 +452,7 @@
     // ---------- AUTO-VERIFY PAIEMENT (toutes les 24h) ----------
     function scheduleDailyPaymentRefresh(){
       const ONE_DAY = 24*60*60*1000;
-      setInterval(async ()=>{
-        await refreshPaymentStatus();
-      }, ONE_DAY);
+      setInterval(async ()=>{ await refreshPaymentStatus(); }, ONE_DAY);
     }
 
     async function refreshPaymentStatus(){
@@ -384,7 +481,7 @@
           general_qr_color: '#b68f1e'
         };
         setPaymentUI(true);
-        await ensureQrGeneral();
+        await ensureQrGeneral(); // même en admin mode pour URL locale
         return;
       }
 
@@ -396,13 +493,14 @@
       const { data, error } = await supabase.from('restaurants').select('*').eq('email', email).single();
       if(error || !data){ alert("Impossible de charger le profil restaurateur."); return; }
       restaurant = data;
+
       setPaymentUI(!!restaurant.paiement);
       if(restaurant.general_qr_color){ generalColor.value = restaurant.general_qr_color; }
 
-      // crée automatiquement le QR général s'il n'existe pas
+      // ✅ crée automatiquement le QR général s'il n'existe pas
       await ensureQrGeneral();
 
-      // vérification abonnement toutes les 24h
+      // 🔁 vérification abonnement toutes les 24h
       scheduleDailyPaymentRefresh();
     }
 
@@ -430,55 +528,12 @@
       }
     }
 
-    // ---------- PAYPAL (affiché uniquement si non payé) ----------
-    function ensurePaypalButtons(){
-      if (typeof paypal === 'undefined') return;
-
-      if (!paymentActive && !paypalRendered.status) {
-        paypal.Buttons({
-          style:{ shape:'rect', color:'gold', layout:'vertical', label:'subscribe' },
-          createSubscription:(data,actions)=>actions.subscription.create({ plan_id:'P-9NN80675AT539804WNDZ4JNY' }),
-          onApprove: async (data) => {
-            if(!adminMode && restaurant?.id){
-              await supabase.from('restaurants').update({ paiement:true, paypal_subscription_id:data.subscriptionID }).eq('id', restaurant.id);
-              restaurant.paiement = true;
-            }
-            setPaymentUI(true);
-            alert("Paiement validé. Votre abonnement est actif.");
-            await ensureQrGeneral();
-            await renderGeneralQR(true);
-            await loadTableList();
-          },
-          onError: (err)=>{ console.error(err); alert("Erreur PayPal : " + err.message); }
-        }).render('#paypal-button-container-status');
-        paypalRendered.status = true;
-      }
-
-      if (!paymentActive && !paypalRendered.overlay) {
-        paypal.Buttons({
-          style:{ shape:'rect', color:'gold', layout:'vertical', label:'subscribe' },
-          createSubscription:(data,actions)=>actions.subscription.create({ plan_id:'P-9NN80675AT539804WNDZ4JNY' }),
-          onApprove: async (data) => {
-            if(!adminMode && restaurant?.id){
-              await supabase.from('restaurants').update({ paiement:true, paypal_subscription_id:data.subscriptionID }).eq('id', restaurant.id);
-              restaurant.paiement = true;
-            }
-            setPaymentUI(true);
-            alert("Paiement validé. Votre abonnement est actif.");
-            await ensureQrGeneral();
-            await renderGeneralQR(true);
-            await loadTableList();
-          },
-          onError: (err)=>{ console.error(err); alert("Erreur PayPal : " + err.message); }
-        }).render('#paypal-button-container-overlay');
-        paypalRendered.overlay = true;
-      }
-    }
-
-    // ouvrir l’overlay manuellement (optionnel)
-    openOverlay?.addEventListener('click', ()=>{
-      if (paymentActive) return;
+    // ---------- PAYPAL ----------
+    payBtn.addEventListener('click', () => {
+      if (adminMode) { alert("Mode Admin actif — paiement non requis."); return; }
       lockOverlay.classList.add('active');
+      const zone = document.getElementById('paypal-button-container-P-9NN80675AT539804WNDZ4JNY');
+      if(zone){ zone.scrollIntoView({ behavior:'smooth', block:'center' }); }
     });
 
     retryStatus.addEventListener('click', async ()=>{
@@ -487,6 +542,25 @@
       await loadTableList();
     });
 
+    if (typeof paypal !== 'undefined') {
+      paypal.Buttons({
+        style:{ shape:'rect', color:'gold', layout:'vertical', label:'subscribe' },
+        createSubscription:(data,actions)=>actions.subscription.create({ plan_id:'P-9NN80675AT539804WNDZ4JNY' }),
+        onApprove: async (data) => {
+          if(!adminMode && restaurant?.id){
+            await supabase.from('restaurants').update({ paiement:true, paypal_subscription_id:data.subscriptionID }).eq('id', restaurant.id);
+            restaurant.paiement = true;
+          }
+          setPaymentUI(true);
+          alert("Paiement validé. Votre abonnement est actif.");
+          await ensureQrGeneral();
+          await renderGeneralQR(true);
+          await loadTableList();
+        },
+        onError: (err)=>{ console.error(err); alert("Erreur PayPal : " + err.message); }
+      }).render('#paypal-button-container-P-9NN80675AT539804WNDZ4JNY');
+    }
+
     // ---------- QR GENERAL (x3) ----------
     async function renderGeneralQR(save=false){
       if(!paymentActive && !adminMode){
@@ -494,9 +568,9 @@
         placeholders.forEach(cv=>{
           const c = cv.getContext('2d');
           c.clearRect(0,0,cv.width,cv.height);
-          c.fillStyle = '#fff';
+          c.fillStyle = '#111';
           c.fillRect(0,0,cv.width,cv.height);
-          c.fillStyle = '#b9b9b9';
+          c.fillStyle = '#8b8468';
           c.textAlign='center'; c.font='bold 14px ui-sans-serif';
           c.fillText('Abonnement inactif', cv.width/2, cv.height/2);
         });
@@ -605,7 +679,10 @@
       }
 
       const { data, error } = adminMode
-        ? { data: loadFloorLayout().map(t=>({ id:t.name, table_nom:t.name, forme:(t.shape==='round'?'rond':'carre'), couleur:t.color, url_qr: baseScanUrl({ restaurant: restaurant?.id || 'DEMO', table: t.name }) })), error:null }
+        ? { data: loadFloorLayout().map(t=>({
+              id:t.name, table_nom:t.name, forme:(t.shape==='round'?'rond':'carre'),
+              couleur:t.color, url_qr: baseScanUrl({ restaurant: restaurant?.id || 'DEMO', table: t.name })
+            })), error:null }
         : await supabase
             .from('qr_codes')
             .select('*')
@@ -646,10 +723,12 @@
       bRen.className='mini soft'; bRen.textContent='Renommer';
       bRen.onclick = async ()=>{
         const nn = prompt("Nouveau nom de table :", t.table_nom || t.name); if(!nn) return;
+
         // Mise à jour local plan
         const layout = loadFloorLayout();
         const i = layout.findIndex(x=>x.name===(t.table_nom || t.name));
         if(i>-1){ layout[i].name = nn; saveFloorLayout(layout); renderFloor(); }
+
         // Mise à jour base
         if(!adminMode && restaurant?.id && t.id){
           const urlNew = baseScanUrl({ restaurant: restaurant.id, table: nn });
@@ -720,9 +799,6 @@
 
     // ---------- LISTENERS ----------
     window.addEventListener('online', async ()=>{ await loadSessionAndRestaurant(); });
-
-    // S'assure que les boutons PayPal sont rendus si non payé après boot
-    if (!paymentActive) ensurePaypalButtons();
   </script>
 </body>
 </html>
