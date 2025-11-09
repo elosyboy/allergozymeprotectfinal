@@ -36,23 +36,9 @@
     .status-red{background:#c94141;box-shadow:0 0 10px rgba(201,65,65,.4)}
     .status-green{background:#3aa357;box-shadow:0 0 10px rgba(58,163,87,.4)}
     .btn-bw{
-     background:#000;
-     color:#fff;
-     border:1px solid #000;
-     font-weight:700;
-     padding:10px 16px;
-     border-radius:999px;
-     cursor:pointer;
-     transition:0.25s; 
-    } 
-    .btn-bw:hover{
-     background:#fff;
-     color:#000;
-     transform:translateY(-2px);
-     box-shadow:0 10px 18px rgba(0,0,0,.25);
+     background:#000;color:#fff;border:1px solid #000;font-weight:700;padding:10px 16px;border-radius:999px;cursor:pointer;transition:0.25s;
     }
-
-
+    .btn-bw:hover{background:#fff;color:#000;transform:translateY(-2px);box-shadow:0 10px 18px rgba(0,0,0,.25);}
 
     main{max-width:1280px;margin:0 auto;padding:24px 16px 80px}
     .card{background:#fff;border:1px solid var(--gold-25);border-radius:22px;padding:20px;box-shadow:0 14px 36px var(--gold-10);margin:16px 0;position:relative;overflow:hidden}
@@ -116,7 +102,7 @@
     .mini{padding:8px 10px;border-radius:10px;font-weight:700;border:1px solid var(--gold-25);background:#fff;cursor:pointer}
     .mini:hover{box-shadow:0 8px 18px var(--gold-10)}
     .danger{background:#c94141;color:#fff;border-color:#c94141}
-    .soft{background:var(--gold);color:#333;border-color:var(--gold)}
+    .soft{background:var(--gold);color:#333;border-color:#gold}
   </style>
 </head>
 <body>
@@ -127,7 +113,7 @@
     </div>
     <div class="top-actions">
       <a class="btn btn-ghost" href="archive.html">Archive</a>
-      <a id="payBtn" class="btn">Payer l’abonnement</a>
+      <!-- Bouton Payer retiré du header -->
       <div id="payCircle" class="status-dot status-red" title="Statut abonnement"></div>
     </div>
   </header>
@@ -137,8 +123,8 @@
     <div class="box">
       <h3>Abonnement inactif</h3>
       <p class="muted">Votre abonnement annuel est inactif. Aucune fonctionnalité n’est accessible et les QR ne sont pas utilisables.</p>
-      <div id="paypalZone" class="row" style="margin-top:10px">
-        <div id="paypal-button-container-P-9NN80675AT539804WNDZ4JNY"></div>
+      <div id="paypalZone" class="row" style="margin-top:10px; display:none;">
+        <div id="paypal-button-container-overlay"></div>
       </div>
       <button id="retryStatus" class="btn btn-ghost" style="margin-top:10px">Rafraîchir le statut</button>
     </div>
@@ -149,6 +135,12 @@
     <section class="card" id="statusCard">
       <h2>Statut de l’abonnement</h2>
       <p class="muted" id="statusText" style="text-align:center">Vérification en cours…</p>
+
+      <!-- Zone de paiement visible UNIQUEMENT si non payé -->
+      <div id="statusPayRow" class="row" style="margin-top:10px; display:none;">
+        <div id="paypal-button-container-status"></div>
+        <button id="openOverlay" class="btn btn-ghost" title="Payer dans une fenêtre">Payer dans une fenêtre</button>
+      </div>
     </section>
 
     <!-- QR général x3 -->
@@ -226,48 +218,40 @@
   <!-- QRCode lib -->
   <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.js"></script>
 
-
   <script type="module">
+    // ---------- MODE ADMIN AUTO (accès direct sans paiement) ----------
+    let adminMode = localStorage.getItem("adminMode") === "true";
+    const adminPayment = localStorage.getItem("adminPayment") === "true";
 
-   // ---------- MODE ADMIN AUTO (accès direct sans paiement) ----------
-let adminMode = localStorage.getItem("adminMode") === "true";
-const adminPayment = localStorage.getItem("adminPayment") === "true";
+    if (adminMode && adminPayment) {
+      console.log("🟢 Mode admin actif : accès total sans restriction");
+      document.addEventListener("DOMContentLoaded", async () => {
+        const payCircle = document.getElementById('payCircle');
+        const statusText = document.getElementById('statusText');
+        const lockOverlay = document.getElementById('lockOverlay');
 
-if (adminMode && adminPayment) {
-  console.log("🟢 Mode admin actif : accès total sans restriction");
+        if (payCircle) payCircle.classList.add('status-green');
+        if (statusText) statusText.textContent = "Abonnement admin actif à vie.";
+        if (lockOverlay) lockOverlay.classList.remove('active');
 
-  document.addEventListener("DOMContentLoaded", async () => {
-    const payCircle = document.getElementById('payCircle');
-    const statusText = document.getElementById('statusText');
-    const lockOverlay = document.getElementById('lockOverlay');
-
-    if (payCircle) payCircle.classList.add('status-green');
-    if (statusText) statusText.textContent = "Abonnement admin actif à vie.";
-    if (lockOverlay) lockOverlay.classList.remove('active');
-
-    // 🧠 Création automatique du QR général en mode admin
-    try {
-      const canvL = document.getElementById('generalCanvasL');
-      const canvC = document.getElementById('generalCanvasC');
-      const canvR = document.getElementById('generalCanvasR');
-
-      const color = "#b68f1e";
-      const baseUrl = window.location.origin + "/signature.html?restaurant=ADMIN-DEMO&type=general";
-
-      const QR = window.QRCode;
-      await QR.toCanvas(canvL, baseUrl, { color: { dark: color, light: "#fff" }, width: 260 });
-      await QR.toCanvas(canvC, baseUrl, { color: { dark: color, light: "#fff" }, width: 260 });
-      await QR.toCanvas(canvR, baseUrl, { color: { dark: color, light: "#fff" }, width: 260 });
-
-      console.log("✅ QR générés automatiquement (mode admin)");
-    } catch (err) {
-      console.error("Erreur génération QR admin:", err);
+        // QR auto
+        try {
+          const canvL = document.getElementById('generalCanvasL');
+          const canvC = document.getElementById('generalCanvasC');
+          const canvR = document.getElementById('generalCanvasR');
+          const color = "#b68f1e";
+          const baseUrl = window.location.origin + "/signature.html?restaurant=ADMIN-DEMO&type=general";
+          const QR = window.QRCode;
+          await QR.toCanvas(canvL, baseUrl, { color: { dark: color, light: "#fff" }, width: 260 });
+          await QR.toCanvas(canvC, baseUrl, { color: { dark: color, light: "#fff" }, width: 260 });
+          await QR.toCanvas(canvR, baseUrl, { color: { dark: color, light: "#fff" }, width: 260 });
+          console.log("✅ QR générés automatiquement (mode admin)");
+        } catch (err) {
+          console.error("Erreur génération QR admin:", err);
+        }
+      });
     }
-  });
-}
 
-  
- 
     import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
     // ---------- CONFIG SUPABASE ----------
@@ -276,11 +260,14 @@ if (adminMode && adminPayment) {
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     // ---------- ELEMENTS ----------
-    const payBtn = document.getElementById('payBtn');
     const payCircle = document.getElementById('payCircle');
     const statusText = document.getElementById('statusText');
     const lockOverlay = document.getElementById('lockOverlay');
     const retryStatus = document.getElementById('retryStatus');
+
+    const statusPayRow = document.getElementById('statusPayRow');
+    const openOverlay = document.getElementById('openOverlay');
+    const paypalZone = document.getElementById('paypalZone');
 
     const generalColor  = document.getElementById('generalColor');
     const regenGeneral  = document.getElementById('regenGeneral');
@@ -303,19 +290,27 @@ if (adminMode && adminPayment) {
     let session = null;
     let restaurant = null;
     let paymentActive = false;
-  
+    let paypalRendered = { status:false, overlay:false };
 
     // ---------- HELPERS ----------
     function setPaymentUI(active){
       paymentActive = active;
+
+      // pastilles & texte
       if(active){
         payCircle.classList.remove('status-red'); payCircle.classList.add('status-green');
         statusText.textContent = "Abonnement actif. Toutes les fonctionnalités sont disponibles.";
+        // cacher overlay + zone de paiement
         lockOverlay.classList.remove('active');
+        statusPayRow.style.display = 'none';
+        paypalZone.style.display = 'none';
       }else{
         payCircle.classList.remove('status-green'); payCircle.classList.add('status-red');
-        statusText.textContent = "Abonnement inactif. Le tableau de bord et les QR sont désactivés.";
-        lockOverlay.classList.add('active');
+        statusText.textContent = "Abonnement inactif. Veuillez activer votre abonnement pour déverrouiller toutes les fonctionnalités.";
+        lockOverlay.classList.add('active'); // bloque l'app
+        statusPayRow.style.display = 'flex'; // montre le bouton PayPal DANS la carte Statut
+        paypalZone.style.display = 'flex';   // montre le bouton PayPal dans l'overlay
+        ensurePaypalButtons();               // rend les boutons si besoin
       }
     }
 
@@ -389,7 +384,7 @@ if (adminMode && adminPayment) {
           general_qr_color: '#b68f1e'
         };
         setPaymentUI(true);
-        await ensureQrGeneral(); // même en admin mode pour URL locale
+        await ensureQrGeneral();
         return;
       }
 
@@ -404,17 +399,17 @@ if (adminMode && adminPayment) {
       setPaymentUI(!!restaurant.paiement);
       if(restaurant.general_qr_color){ generalColor.value = restaurant.general_qr_color; }
 
-      // ✅ crée automatiquement le QR général s'il n'existe pas
+      // crée automatiquement le QR général s'il n'existe pas
       await ensureQrGeneral();
 
-      // 🔁 vérification abonnement toutes les 24h
+      // vérification abonnement toutes les 24h
       scheduleDailyPaymentRefresh();
     }
 
     // ---------- AUTO-GÉNÉRATION DU QR GÉNÉRAL ----------
     async function ensureQrGeneral(){
       if (!restaurant?.id) return;
-      const { data: existing, error } = await supabase
+      const { data: existing } = await supabase
         .from("qr_codes")
         .select("id, couleur, url_qr")
         .eq("restaurant_id", restaurant.id)
@@ -429,19 +424,61 @@ if (adminMode && adminPayment) {
           { restaurant_id: restaurant.id, type: "general", couleur: colorHex, forme: "carre", url_qr: qrUrl }
         ]);
       } else {
-        // Si l'URL a changé (domaine), on met à jour
         if (existing.url_qr !== qrUrl || existing.couleur !== colorHex) {
           await supabase.from("qr_codes").update({ url_qr: qrUrl, couleur: colorHex }).eq("id", existing.id);
         }
       }
     }
 
-    // ---------- PAYPAL ----------
-    payBtn.addEventListener('click', () => {
-      if (adminMode) { alert("Mode Admin actif — paiement non requis."); return; }
+    // ---------- PAYPAL (affiché uniquement si non payé) ----------
+    function ensurePaypalButtons(){
+      if (typeof paypal === 'undefined') return;
+
+      if (!paymentActive && !paypalRendered.status) {
+        paypal.Buttons({
+          style:{ shape:'rect', color:'gold', layout:'vertical', label:'subscribe' },
+          createSubscription:(data,actions)=>actions.subscription.create({ plan_id:'P-9NN80675AT539804WNDZ4JNY' }),
+          onApprove: async (data) => {
+            if(!adminMode && restaurant?.id){
+              await supabase.from('restaurants').update({ paiement:true, paypal_subscription_id:data.subscriptionID }).eq('id', restaurant.id);
+              restaurant.paiement = true;
+            }
+            setPaymentUI(true);
+            alert("Paiement validé. Votre abonnement est actif.");
+            await ensureQrGeneral();
+            await renderGeneralQR(true);
+            await loadTableList();
+          },
+          onError: (err)=>{ console.error(err); alert("Erreur PayPal : " + err.message); }
+        }).render('#paypal-button-container-status');
+        paypalRendered.status = true;
+      }
+
+      if (!paymentActive && !paypalRendered.overlay) {
+        paypal.Buttons({
+          style:{ shape:'rect', color:'gold', layout:'vertical', label:'subscribe' },
+          createSubscription:(data,actions)=>actions.subscription.create({ plan_id:'P-9NN80675AT539804WNDZ4JNY' }),
+          onApprove: async (data) => {
+            if(!adminMode && restaurant?.id){
+              await supabase.from('restaurants').update({ paiement:true, paypal_subscription_id:data.subscriptionID }).eq('id', restaurant.id);
+              restaurant.paiement = true;
+            }
+            setPaymentUI(true);
+            alert("Paiement validé. Votre abonnement est actif.");
+            await ensureQrGeneral();
+            await renderGeneralQR(true);
+            await loadTableList();
+          },
+          onError: (err)=>{ console.error(err); alert("Erreur PayPal : " + err.message); }
+        }).render('#paypal-button-container-overlay');
+        paypalRendered.overlay = true;
+      }
+    }
+
+    // ouvrir l’overlay manuellement (optionnel)
+    openOverlay?.addEventListener('click', ()=>{
+      if (paymentActive) return;
       lockOverlay.classList.add('active');
-      const zone = document.getElementById('paypal-button-container-P-9NN80675AT539804WNDZ4JNY');
-      if(zone){ zone.scrollIntoView({ behavior:'smooth', block:'center' }); }
     });
 
     retryStatus.addEventListener('click', async ()=>{
@@ -449,25 +486,6 @@ if (adminMode && adminPayment) {
       await renderGeneralQR(); // rafraîchir affichage
       await loadTableList();
     });
-
-    if (typeof paypal !== 'undefined') {
-      paypal.Buttons({
-        style:{ shape:'rect', color:'gold', layout:'vertical', label:'subscribe' },
-        createSubscription:(data,actions)=>actions.subscription.create({ plan_id:'P-9NN80675AT539804WNDZ4JNY' }),
-        onApprove: async (data) => {
-          if(!adminMode && restaurant?.id){
-            await supabase.from('restaurants').update({ paiement:true, paypal_subscription_id:data.subscriptionID }).eq('id', restaurant.id);
-            restaurant.paiement = true;
-          }
-          setPaymentUI(true);
-          alert("Paiement validé. Votre abonnement est actif.");
-          await ensureQrGeneral();
-          await renderGeneralQR(true);
-          await loadTableList();
-        },
-        onError: (err)=>{ console.error(err); alert("Erreur PayPal : " + err.message); }
-      }).render('#paypal-button-container-P-9NN80675AT539804WNDZ4JNY');
-    }
 
     // ---------- QR GENERAL (x3) ----------
     async function renderGeneralQR(save=false){
@@ -628,12 +646,10 @@ if (adminMode && adminPayment) {
       bRen.className='mini soft'; bRen.textContent='Renommer';
       bRen.onclick = async ()=>{
         const nn = prompt("Nouveau nom de table :", t.table_nom || t.name); if(!nn) return;
-
         // Mise à jour local plan
         const layout = loadFloorLayout();
         const i = layout.findIndex(x=>x.name===(t.table_nom || t.name));
         if(i>-1){ layout[i].name = nn; saveFloorLayout(layout); renderFloor(); }
-
         // Mise à jour base
         if(!adminMode && restaurant?.id && t.id){
           const urlNew = baseScanUrl({ restaurant: restaurant.id, table: nn });
@@ -704,6 +720,9 @@ if (adminMode && adminPayment) {
 
     // ---------- LISTENERS ----------
     window.addEventListener('online', async ()=>{ await loadSessionAndRestaurant(); });
+
+    // S'assure que les boutons PayPal sont rendus si non payé après boot
+    if (!paymentActive) ensurePaypalButtons();
   </script>
 </body>
 </html>
